@@ -3,29 +3,29 @@
 #include <ctime>
 #include <iomanip>
 
-// Inicialización de variables estáticas
+// Variables estáticas
 int Account::total_accounts = 0;
 int Account::total_balance = 0;
 int Account::total_deposits = 0;
-int Account::total_withdrawals = 0;  // corregido
+int Account::total_withdrawals = 0;
 
-// Constructor
+// Crea la cuenta
 Account::Account(int first_deposit)
     : account_id(total_accounts), balance(first_deposit), deposit_count(0), withdrawal_count(0)  // corregido
 {
     total_accounts++;
     total_balance += first_deposit;
 
-    _displayTimestamp();
+    display_timestamp();
     std::cout << " index:" << account_id
               << ";amount:" << balance
               << ";created" << std::endl;
 }
 
-// Destructor
+// Destruye
 Account::~Account()
 {
-    _displayTimestamp();
+    display_timestamp();
     std::cout << " index:" << account_id
               << ";amount:" << balance
               << ";closed" << std::endl;
@@ -34,9 +34,9 @@ Account::~Account()
 // Hacer depósito
 void Account::make_deposit(int deposit)
 {
-    _displayTimestamp();
+    display_timestamp();
     std::cout << " index:" << account_id
-              << ";p_amount:" << balance;
+              << ";prev_amount:" << balance;
 
     balance += deposit;
     deposit_count++;
@@ -45,20 +45,20 @@ void Account::make_deposit(int deposit)
 
     std::cout << ";deposit:" << deposit
               << ";amount:" << balance
-              << ";nb_deposits:" << deposit_count << std::endl;
+              << ";nbr_deposits:" << deposit_count << std::endl;
 }
 
 // Intentar retirada
 bool Account::take_money(int withdrawal)
 {
-    _displayTimestamp();
+    display_timestamp();
     std::cout << " index:" << account_id
-              << ";p_amount:" << balance;
+              << ";prev_amount:" << balance;
 
     if (withdrawal > balance)
     {
         std::cout << ";withdrawal:refused" << std::endl;
-        return false;
+        return (false);
     }
 
     balance -= withdrawal;
@@ -68,7 +68,7 @@ bool Account::take_money(int withdrawal)
 
     std::cout << ";withdrawal:" << withdrawal
               << ";amount:" << balance
-              << ";nb_withdrawals:" << withdrawal_count << std::endl;
+              << ";nbr_withdrawals:" << withdrawal_count << std::endl;
 
     return true;
 }
@@ -76,7 +76,7 @@ bool Account::take_money(int withdrawal)
 // Mostrar estado de una cuenta
 void Account::account_information() const
 {
-    _displayTimestamp();
+    display_timestamp();
     std::cout << " index:" << account_id
               << ";amount:" << balance
               << ";deposits:" << deposit_count
@@ -86,15 +86,14 @@ void Account::account_information() const
 // Mostrar estado global del banco
 void Account::status()
 {
-    _displayTimestamp();
+    display_timestamp();
     std::cout << " accounts:" << total_accounts
               << ";total:" << total_balance
               << ";deposits:" << total_deposits
               << ";withdrawals:" << total_withdrawals << std::endl;
 }
 
-// Mostrar timestamp formateado
-void Account::_displayTimestamp()
+void Account::display_timestamp()
 {
     std::time_t now = std::time(0);
     std::tm *ltm = std::localtime(&now);

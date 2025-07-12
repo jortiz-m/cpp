@@ -3,10 +3,11 @@
 int main() 
 {
     Account acc1(1000);
-    acc1.makeDeposit(500);
-    acc1.makeWithdrawal(200);
-    acc1.displayStatus();
+    acc1.make_deposit(500);
+    acc1.take_money(200);
+    acc1.status();
 
-    Account::displayAccountsInfos();
+    
+    Account::status();
     return (0);
 }

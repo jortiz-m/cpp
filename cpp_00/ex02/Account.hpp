@@ -4,14 +4,14 @@
 class Account
 {
 public:
-    Account(int first_deposit);   // Constructor
-    ~Account();                     // Destructor
+    Account(int first_deposit);
+    ~Account();
 
-    void make_deposit(int deposit);  // Añadir dinero
-    bool take_money(int withdrawal); // Sacar dinero
-    void account_information() const;     // Mostrar info de una cuenta
+    void make_deposit(int deposit);
+    bool take_money(int withdrawal);
+    void account_information() const;
 
-    static void status(); // Mostrar info global
+    static void status();
 
 private:
     static int total_accounts;
@@ -24,7 +24,7 @@ private:
     int deposit_count;     
     int withdrawal_count;  
 
-    static void _displayTimestamp();
+    static void display_timestamp();
 };
 
 #endif
