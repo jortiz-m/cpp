@@ -1,5 +1,5 @@
-#include <iostream>
-#include <cctype>
+#include <iostream> // input y output
+#include <cctype> // trabajr con caracteres
 
 int	main(int ac, char **av)
 {

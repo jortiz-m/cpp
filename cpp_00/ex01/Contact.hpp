@@ -14,12 +14,12 @@ private:
 
 public:
     void fill();
-    void displayFull() const;
-    void displaySummary(int index) const;
+    void display_full() const;
+    void display_summary(int index) const;
 
-    std::string getFirstName() const;
-    std::string getLastName() const;
-    std::string getNickname() const;
+    std::string get_first_name() const;
+    std::string get_last_name() const;
+    std::string get_nickname() const;
 };
 
 #endif

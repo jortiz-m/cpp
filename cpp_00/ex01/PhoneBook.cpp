@@ -4,7 +4,7 @@
 
 PhoneBook::PhoneBook() : total_contacts(0), next_index(0) {}
 
-void PhoneBook::addContact() 
+void PhoneBook::add_contact() 
 {
     contacts[next_index].fill();
     next_index = (next_index + 1) % 8;
@@ -12,7 +12,7 @@ void PhoneBook::addContact()
         total_contacts++;
 }
 
-void PhoneBook::searchContact() const
+void PhoneBook::search_contact() const
 {
     int i;
     
@@ -25,7 +25,7 @@ void PhoneBook::searchContact() const
     std::cout << "|     Index|First Name| Last Name|  Nickname|" << std::endl;
     while (i < total_contacts) 
     {
-        contacts[i].displaySummary(i);
+        contacts[i].display_summary(i);
         i++;
     }
 
