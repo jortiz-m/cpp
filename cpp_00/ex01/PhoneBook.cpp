@@ -40,6 +40,6 @@ void PhoneBook::search_contact() const
         std::cout << "Invalid index." << std::endl;
     } else 
     {
-        contacts[index].displayFull();
+        contacts[index].display_full();
     }
 }

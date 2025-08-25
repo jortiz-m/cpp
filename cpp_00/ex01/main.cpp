@@ -10,15 +10,15 @@ int main()
     while (true) 
     {
         std::cout << "Enter command (ADD, SEARCH, EXIT): ";
-        std::getline(std::cin, command);
+        std::getline(std::cin, command); // leer el comando que el usuario ingresa
 
         if (command == "ADD") 
         {
-            phonebook.addContact();
+            phonebook.add_contact();
         } 
         else if (command == "SEARCH") 
         {
-            phonebook.searchContact();
+            phonebook.search_contact();
         } 
         else if (command == "EXIT") 
         {
