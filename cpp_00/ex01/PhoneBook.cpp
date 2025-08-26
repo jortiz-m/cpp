@@ -36,10 +36,7 @@ void PhoneBook::search_contact() const
     std::istringstream iss(input);
     int index;
     if (!(iss >> index) || index < 0 || index >= total_contacts)
-    {
         std::cout << "Invalid index." << std::endl;
-    } else 
-    {
+    else 
         contacts[index].display_full();
-    }
 }

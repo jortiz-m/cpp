@@ -3,19 +3,19 @@
 
 #include <string>
 
-class Contact 
+class Contact
 {
-private:
-    std::string first_name;
-    std::string last_name;
-    std::string nickname;
-    std::string phone_number;
-    std::string darkest_secret;
+    private:
+        std::string first_name;
+        std::string last_name;
+        std::string nickname;
+        std::string phone_number;
+        std::string darkest_secret;
 
-public:
-    void fill();
-    void display_full() const;
-    void display_summary(int index) const;
+    public:
+        void fill();
+        void display_full() const;
+        void display_summary(int index) const;
 
     std::string get_first_name() const;
     std::string get_last_name() const;
