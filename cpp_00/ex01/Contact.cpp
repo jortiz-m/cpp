@@ -1,28 +1,41 @@
 #include "Contact.hpp"
-#include <iostream>
 
 static std::string get_non_empty_input(const std::string &prompt) 
 {
     std::string input;
 
-    std::cout << prompt; //muestra en la salida el mensaje de solicitud
-    std::getline(std::cin, input); //lee lo que el usuario introduce y lo guarda en la variable input
-
-    while (input.empty()) // Verifica si la entrada está vacía
+    while (true)
     {
-        std::cout << prompt; // Si está vacía, vuelve a solicitar la entrada
-        std::getline(std::cin, input); // Lee nuevamente la entrada del usuario
+        std::cout << prompt;
+        std::getline(std::cin, input);
+        if (std::cin.eof()) 
+        {
+            std::cout << "\nEOF detected, exiting..." << std::endl;
+            exit(0);
+        }
+        if (!input.empty())
+            break;
     }
-    return (input);
+    return input;
 }
 
 void Contact::fill() 
 {
     first_name = get_non_empty_input("First Name: ");
+    if (std::cin.eof() || first_name.empty()) 
+        return;
     last_name = get_non_empty_input("Last Name: ");
+    if (std::cin.eof() || last_name.empty()) 
+        return;
     nickname = get_non_empty_input("Nickname: ");
+    if (std::cin.eof() || nickname.empty()) 
+        return;
     phone_number = get_non_empty_input("Phone Number: ");
+    if (std::cin.eof() || phone_number.empty()) 
+        return;
     darkest_secret = get_non_empty_input("Darkest Secret: ");
+    if (std::cin.eof() || darkest_secret.empty()) 
+        return;
 }
 
 void Contact::display_full() const 

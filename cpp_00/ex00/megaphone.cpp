@@ -1,5 +1,5 @@
-#include <iostream> // input y output
-#include <cctype> // trabajar con caracteres
+#include <iostream> 			// input y output
+#include <cctype> 				// trabajar con caracteres
 
 int	main(int ac, char **av)
 {
@@ -17,13 +17,18 @@ int	main(int ac, char **av)
 			j = 0;
 			while(av[i][j])
 			{
-				std::cout << static_cast<char>(std::toupper(av[i][j]));
+				std::cout << static_cast<char>(std::toupper(av[i][j]));  //devuelve un int
                 ++j;
 			}
-			std::cout << " ";
+			if(i != ac - 1)
+				std::cout << " ";
 			i++;
 		}
 		std::cout << std::endl;
 	}
 	return(0);
 }
+
+
+//toupper es un método que devuelve un int y se tiene que castear para que devuelva un char
+// static_cast<char> es la forma de utilizarlo en cpp

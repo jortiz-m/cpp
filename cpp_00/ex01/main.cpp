@@ -1,5 +1,4 @@
 #include "PhoneBook.hpp"
-#include <iostream>
 
 int main() 
 {
@@ -11,9 +10,12 @@ int main()
         std::cout << "Enter command (ADD, SEARCH, EXIT): ";
         std::getline(std::cin, command); // leer el comando que el usuario ingresa
 
-        if(std::cin.eof())
-            break ;
-        if (command == "ADD") 
+        if (std::cin.eof())
+        {
+		    std::cout << "\nEOF detected, exiting..." << std::endl;
+		    break ;
+        }
+        else if (command == "ADD") 
             phonebook.add_contact();
         else if (command == "SEARCH") 
             phonebook.search_contact();
