@@ -18,3 +18,8 @@ int main()
 
     return (0);
 }
+
+
+// diferencia entre * y &, los punteros apuntan a direcciones de memoria, pueden ser nulos
+// mientras que & no pueden ser nulas y siempre hacen referencia a un objeto existente
+// igual que en C

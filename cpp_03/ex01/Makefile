@@ -1,9 +1,9 @@
-NAME = zombie
+NAME = ScavTrap
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = main.cpp Zombie.cpp
+SRC = main.cpp ScavTrap.cpp ClapTrap.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)

@@ -1,21 +1,19 @@
 #include "Zombie.hpp"
 
-Zombie* newZombie(std::string name);
-void randomChump(std::string name);
-
-int main() 
+int	main() 
 {
-    Zombie *heapZombie = newZombie("HeapZombie");
-    heapZombie->announce();
-    delete heapZombie;
+	Zombie zombie("Jon");
+	zombie.announce();
 
-    randomChump("StackZombie");
+	randomChump("Jonhy");
 
-    return (0);
+	Zombie* anotherZombie = newZombie("Jonathan");
+	anotherZombie->announce();
+	delete (anotherZombie);
+
+	return (0);
 }
 
-
+// dos tipos de crear objetos, stack y heap(*), stack es un espacio de memoria que se utiliza para almacenar datos de forma temporal
+// mientras que heap es un espacio de memoria que se utiliza para almacenar datos dinámicamente y hay que liberar manualmente
 // un * creas un espacio de memoria, es como si se asignara un malloc automático
-// heap es un espacio de memoria que se utiliza para almacenar datos dinámicamente
-// stack es un espacio de memoria que se utiliza para almacenar datos de forma temporal
-// new (nombre del objeto) nueva forma de hacer malloc

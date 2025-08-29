@@ -18,3 +18,7 @@ int main()
 
     return (0);
 }
+
+
+// en este es crear un array de zombis los cuales tengo que eliminar
+// manualmente, debido a que son declarados con *
