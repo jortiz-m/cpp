@@ -36,7 +36,7 @@ void ClapTrap::takeDamage(unsigned int amount)
         std::cout << name << " is already destroyed and cannot take more damage." << std::endl;
         return;
     }
-    if (amount >= health)
+    if (amount >= static_cast<unsigned int>(health))
     {
         std::cout << name << " has been attacked and lost " << health << " health points and is now destroyed." << std::endl;
         health = 0;

@@ -1,21 +1,21 @@
 #include "ClapTrap.hpp"
 
-ClapTrap::ClapTrap(void) : name("Default"), health(10), energyPoints(10), attackDamage(0)               // Constructor por defecto
+ClapTrap::ClapTrap(void) : name("Default"), health(10), energyPoints(10), attackDamage(0)
 {
     std::cout << "ClapTrap " << name << " created" << std::endl;
 }
 
-ClapTrap::ClapTrap(const std::string& name) : name(name), health(10), energyPoints(10), attackDamage(0) // Constructor con nombre personalizado
+ClapTrap::ClapTrap(const std::string& name) : name(name), health(10), energyPoints(10), attackDamage(0)
 {
     std::cout << "ClapTrap " << name << " created" << std::endl;
 }
 
-ClapTrap::~ClapTrap(void)                                                                               // Destructor
+ClapTrap::~ClapTrap(void)
 {
     std::cout << "ClapTrap " << name << " destroyed" << std::endl;
 }
 
-void ClapTrap::attack(const std::string& target)                                                        // atacar teniendo energia
+void ClapTrap::attack(const std::string& target)
 {
     if (energyPoints < 1)
     {
@@ -48,7 +48,7 @@ void ClapTrap::takeDamage(unsigned int amount)
     }
 }
 
-void ClapTrap::beRepaired(unsigned int amount)                                                                 // repararse en caso de tener energia y vida
+void ClapTrap::beRepaired(unsigned int amount)
 {
     if (energyPoints < 1)
     {

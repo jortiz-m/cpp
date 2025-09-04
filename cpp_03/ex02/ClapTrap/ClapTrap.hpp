@@ -12,9 +12,9 @@ class ClapTrap
         int         attackDamage;
 
     public:
-        ClapTrap();                             //constructor
-        ClapTrap(const std::string& name);      //constructor con nombre
-        ~ClapTrap();                            // destructor
+        ClapTrap();
+        ClapTrap(const std::string& name);
+        ~ClapTrap();
 
         void attack(const std::string& target);
         void takeDamage(unsigned int amount);
@@ -22,6 +22,3 @@ class ClapTrap
 };
 
 #endif
-
-// en este caso es protected porque las clases hijas (ScavTrap) 
-// necesitan acceder a estos atributos
