@@ -4,23 +4,23 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdlib>
 
 class Sed 
 {
-public:
-	Sed(const std::string& filename, const std::string& s1, const std::string& s2);
-	~Sed();
+	public:
+		Sed(const std::string& filename, const std::string& s1, const std::string& s2);
+		~Sed();
+		void process();
 
-	void process();
+	private:
+		std::string filename;
+		std::string s1;
+		std::string s2;
 
-private:
-	std::string _filename;
-	std::string _s1;
-	std::string _s2;
-
-	std::string _readFile();
-	std::string _replaceAll(const std::string& content);
-	void _writeFile(const std::string& content);
+	std::string readFile();
+	std::string repalceAll(const std::string& content);
+	void 		writeFile(const std::string& content);
 };
 
 #endif

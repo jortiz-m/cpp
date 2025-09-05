@@ -1,4 +1,4 @@
-AME = sed_is_for_losers
+NAME = Sed
 
 SRC = main.cpp Sed.cpp
 OBJ = $(SRC:.cpp=.o)
