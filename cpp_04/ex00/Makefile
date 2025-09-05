@@ -1,9 +1,9 @@
-NAME = unnecessary_violence
+NAME = ScavTrap
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = main.cpp Weapon.cpp HumanA.cpp HumanB.cpp
+SRC = main.cpp WrongAnimal/WrongAnimal.cpp Dog/Dog.cpp Cat/Cat.cpp Animal/Animal.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
