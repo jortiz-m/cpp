@@ -1,10 +1,10 @@
 NAME = Sed
 
-SRC = main.cpp Sed.cpp
-OBJ = $(SRC:.cpp=.o)
-
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+
+SRC = main.cpp Sed.cpp
+OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
 
