@@ -23,14 +23,14 @@ Fixed::Fixed(const float inFloat)
 Fixed::Fixed(const Fixed &to_copy) 
 {
 	cout << "Copy constructor called" << endl;
-	*this = to_copy;
+	*this = (to_copy);
 }
 
 Fixed &Fixed::operator=(const Fixed &original)
 {
 	cout << "Copy assignment operator called" << endl;
 	this->setRawBits(original.getRawBits());
-	return *this;
+	return (*this);
 }
 
 Fixed::~Fixed(void) 
@@ -40,7 +40,7 @@ Fixed::~Fixed(void)
 
 int Fixed::getRawBits(void) const 
 {
-	return this->value;
+	return (this->value);
 }
 
 void Fixed::setRawBits(int const raw) 
@@ -61,5 +61,5 @@ int Fixed::toInt(void) const
 std::ostream &operator<<(std::ostream &stream, const Fixed &nbr)
 {
 	stream << nbr.toFloat();
-	return stream;
+	return (stream);
 }

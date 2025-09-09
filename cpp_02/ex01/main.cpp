@@ -22,3 +22,8 @@ int main(void)
 
 	return (0);
 }
+
+// En este ejercicio amplío la clase Fixed para que pueda trabajar con enteros y flotantes.
+// Aprendo a crear objetos con distintos tipos, convertir entre ellos y sobrecargar operadores.
+// Así, mi clase Fixed se comporta como un tipo de dato nativo y puedo imprimirla directamente.
+// Practico la forma canónica ortodoxa y el manejo seguro de conversiones y operadores en C++.
