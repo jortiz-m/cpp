@@ -4,7 +4,7 @@ int main(int argc, char **argv)
 {
 	if (argc != 4) 
     {
-		std::cerr << "Usage: ./sed_is_for_losers <filename> <s1> <s2>" << std::endl;
+		std::cerr << "Usage: ./Sed <filename> <s1> <s2>" << std::endl;
 		return (1);
 	}
 

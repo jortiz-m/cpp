@@ -1,5 +1,4 @@
 #include "HumanB.hpp"
-#include <iostream>
 
 HumanB::HumanB(std::string name) : name(name), weapon(0) {}  // el cero es que se inicializa a nullptr, esta clase puede crearse sin arma
 

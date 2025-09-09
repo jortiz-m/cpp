@@ -1,7 +1,7 @@
 #include "Harl.hpp"
-#include <iostream>
 
-int main() {
+int main() 
+{
 	Harl harl;
 
 	std::cout << "---- DEBUG ----" << std::endl;
@@ -17,7 +17,7 @@ int main() {
 	harl.complain("ERROR");
 
 	std::cout << "---- UNKNOWN ----" << std::endl;
-	harl.complain("SOMETHING ELSE"); // No hace nada
+	harl.complain("SOMETHING ELSE");
 
 	return (0);
 }
