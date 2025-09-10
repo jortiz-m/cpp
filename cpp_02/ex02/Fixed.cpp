@@ -2,19 +2,18 @@
 
 Fixed::Fixed(void) : value(0) {}
 
-Fixed::Fixed(const int value) 
+Fixed::Fixed(const int inInt) 
 {
-	value = value << fractionalNbr;
+	value = inInt << fractionalNbr;
 }
 
-Fixed::Fixed(const float value) 
+Fixed::Fixed(const float inFloat) 
 {
-	value = roundf(value * (1 << fractionalNbr));
+	value = roundf(inFloat * (1 << fractionalNbr));
 }
 
 Fixed::Fixed(const Fixed& other) : value(other.value) 
 {
-	std::cout << "Copy constructor called" << std::endl;
 }
 
 Fixed &Fixed::operator=(const Fixed& other) 
@@ -27,10 +26,7 @@ Fixed &Fixed::operator=(const Fixed& other)
 
 Fixed::~Fixed(void) 
 {
-	std::cout << "Destructor called" << std::endl;
 }
-
-// Comparative operators
 
 bool	Fixed::operator>(const Fixed& other) const 
 {
@@ -62,8 +58,6 @@ bool	Fixed::operator==(const Fixed& other) const
 	return (value == other.value);
 }
 
-// Arithmetic operators
-
 Fixed	Fixed::operator+(const Fixed& other) const 
 {
 	return Fixed(value + other.value);
@@ -74,21 +68,6 @@ Fixed	Fixed::operator-(const Fixed& other) const
 
 	return Fixed(value - other.value);
 }
-
-// It fails if I return directly like other functions
-Fixed Fixed::operator*(const Fixed& other) const 
-{
-    Fixed result;
-    result.value = (value * other.value) / (1 << fractionalNbr);
-    return result;
-}
-
-Fixed	Fixed::operator/(const Fixed& other) const 
-{
-	return Fixed(static_cast<float>(value) / other.value);
-}
-
-// Increment/Decrement operators
 
 Fixed	&Fixed::operator++(void) 
 {
@@ -117,8 +96,6 @@ Fixed	Fixed::operator--(int)
 	value--;
 	return result;
 }
-
-// Min/Max
 
 Fixed& Fixed::min(Fixed& a, Fixed& b) 
 {
@@ -154,4 +131,16 @@ float	Fixed::toFloat(void) const
 int	Fixed::toInt(void) const 
 {
 	return (value >> fractionalNbr);
+}
+
+Fixed Fixed::operator*(const Fixed& other) const 
+{
+    Fixed result;
+    result.value = (value * other.value) / (1 << fractionalNbr);
+    return result;
+}
+
+Fixed	Fixed::operator/(const Fixed& other) const 
+{
+	return Fixed(static_cast<float>(value) / other.value);
 }

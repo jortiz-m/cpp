@@ -20,3 +20,8 @@ class Fixed
 };
 
 #endif
+
+
+// getRawBits() sirve para leer el valor interno del objeto (solo ver, no cambia nada).
+// setRawBits(int raw) sirve para modificar el valor interno del objeto (lo cambia por el valor que le pases).
+// En resumen: get = ver el valor, set
