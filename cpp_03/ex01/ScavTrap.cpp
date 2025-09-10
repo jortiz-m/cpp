@@ -8,6 +8,21 @@ ScavTrap::ScavTrap() : ClapTrap("Default")
     std::cout << "ScavTrap created" << std::endl;
 }
 
+ScavTrap::ScavTrap(const ScavTrap& other) : ClapTrap(other)
+{
+    std::cout << "ScavTrap copied" << std::endl;
+}
+
+ScavTrap& ScavTrap::operator=(const ScavTrap& other)
+{
+    if (this != &other)
+    {
+        ClapTrap::operator=(other);
+    }
+    std::cout << "ScavTrap assigned" << std::endl;
+    return *this;
+}
+
 ScavTrap::ScavTrap(const std::string& name) : ClapTrap(name)
 {
     health = 100;

@@ -1,21 +1,40 @@
 #include "ClapTrap.hpp"
 
-ClapTrap::ClapTrap(void) : name("Default"), health(10), energyPoints(10), attackDamage(0)
+ClapTrap::ClapTrap(void) : name("Default"), health(10), energyPoints(10), attackDamage(0)               // Constructor por defecto
 {
     std::cout << "ClapTrap " << name << " created" << std::endl;
 }
 
-ClapTrap::ClapTrap(const std::string& name) : name(name), health(10), energyPoints(10), attackDamage(0)
+ClapTrap::ClapTrap(const std::string& name) : name(name), health(10), energyPoints(10), attackDamage(0) // Constructor con nombre personalizado
 {
     std::cout << "ClapTrap " << name << " created" << std::endl;
 }
 
-ClapTrap::~ClapTrap(void)
+ClapTrap::ClapTrap(const ClapTrap& other)
+    : name(other.name), health(other.health), energyPoints(other.energyPoints), attackDamage(other.attackDamage)
+{
+    std::cout << "ClapTrap " << name << " copied" << std::endl;
+}
+
+ClapTrap::~ClapTrap(void)                                                                               // Destructor
 {
     std::cout << "ClapTrap " << name << " destroyed" << std::endl;
 }
 
-void ClapTrap::attack(const std::string& target)
+ClapTrap& ClapTrap::operator=(const ClapTrap& other)
+{
+    if (this != &other)
+    {
+        name = other.name;
+        health = other.health;
+        energyPoints = other.energyPoints;
+        attackDamage = other.attackDamage;
+    }
+    std::cout << "ClapTrap " << name << " assigned" << std::endl;
+    return *this;
+}
+
+void ClapTrap::attack(const std::string& target)                                                        // atacar teniendo energia
 {
     if (energyPoints < 1)
     {
@@ -48,7 +67,7 @@ void ClapTrap::takeDamage(unsigned int amount)
     }
 }
 
-void ClapTrap::beRepaired(unsigned int amount)
+void ClapTrap::beRepaired(unsigned int amount)                                                                 // repararse en caso de tener energia y vida
 {
     if (energyPoints < 1)
     {

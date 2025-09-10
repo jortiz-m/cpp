@@ -9,6 +9,8 @@ class ScavTrap : public ClapTrap
     public:
         ScavTrap();                             // Constructor por defecto
         ScavTrap(const std::string& name);      // Constructor con nombre
+        ScavTrap(const ScavTrap& other);        // Constructor de copia
+        ScavTrap& operator=(const ScavTrap& other); // Operador de asignación
         ~ScavTrap();                            // Destructor
 
         void guardGate();                       // Método nuevo en una clase hija
