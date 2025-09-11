@@ -1,6 +1,7 @@
 #ifndef DOG_HPP
 # define DOG_HPP
-# include "Animal.hpp"
+
+# include "Animal/Animal.hpp"
 
 class Dog : public Animal
 {

@@ -1,9 +1,9 @@
-NAME = ScavTrap
+NAME = animal
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I. -I./Animal
 
-SRC = main.cpp WrongAnimal/WrongAnimal.cpp Dog/Dog.cpp Cat/Cat.cpp Animal/Animal.cpp
+SRC = main.cpp Animal/Animal.cpp Dog/Dog.cpp Cat/Cat.cpp WrongAnimal/WrongAnimal.cpp WrongAnimal/WrongCat.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
