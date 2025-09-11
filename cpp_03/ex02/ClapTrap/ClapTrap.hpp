@@ -7,15 +7,15 @@ class ClapTrap
 {
     protected:
         std::string name;
-        int         health;
+        int         hitPoints;
         int         energyPoints;
         int         attackDamage;
 
     public:
-        ClapTrap();                             //constructor
-        ClapTrap(const std::string& name);      //constructor con nombre
+        ClapTrap();
+        ClapTrap(const std::string& name);
         ClapTrap(const ClapTrap& other);
-        ~ClapTrap();                            // destructor
+        ~ClapTrap();
 
         ClapTrap& operator=(const ClapTrap& other);
 

@@ -2,7 +2,7 @@
 
 ScavTrap::ScavTrap() : ClapTrap("Default")
 {
-    health = 100;
+    hitPoints = 100;
     energyPoints = 50;
     attackDamage = 20;
     std::cout << "ScavTrap created" << std::endl;
@@ -25,7 +25,7 @@ ScavTrap& ScavTrap::operator=(const ScavTrap& other)
 
 ScavTrap::ScavTrap(const std::string& name) : ClapTrap(name)
 {
-    health = 100;
+    hitPoints = 100;
     energyPoints = 50;
     attackDamage = 20;
     std::cout << "ScavTrap name is " << name << std::endl;

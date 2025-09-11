@@ -4,7 +4,7 @@ FragTrap::FragTrap(void) : ClapTrap("undefined") {}
 
 FragTrap::FragTrap(const std::string& name) : ClapTrap(name) 
 {
-	health = 100;
+	hitPoints = 100;
 	energyPoints = 100;
 	attackDamage = 30;
 

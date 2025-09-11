@@ -7,22 +7,14 @@
 class ScavTrap : public ClapTrap
 {
     public:
-        ScavTrap();                             // Constructor por defecto
-        ScavTrap(const std::string& name);      // Constructor con nombre
-        ScavTrap(const ScavTrap& other);        // Constructor de copia
-        ScavTrap& operator=(const ScavTrap& other); // Operador de asignación
-        ~ScavTrap();                            // Destructor
+        ScavTrap();
+        ScavTrap(const std::string& name);
+        ScavTrap(const ScavTrap& other);
+        ScavTrap& operator=(const ScavTrap& other);
+        ~ScavTrap();
 
-        void guardGate();                       // Método nuevo en una clase hija
-        void attack(const std::string& target); // Ataque personalizado
+        void guardGate();
+        void attack(const std::string& target);
 };
 
 #endif
-
-
-// La clase ScavTrap hereda de ClapTrap, por lo que tiene acceso a sus métodos
-// y atributos públicos y protegidos.
-// Se ha añadido un nuevo método guardGate() que es 
-// específico de ScavTrap.
-// El método attack() se ha sobrescrito para proporcionar un comportamiento 
-// específico para ScavTrap.
