@@ -9,14 +9,14 @@ class WrongAnimal
 		std::string	type;
 
 	public:
-		WrongAnimal(void);
+		WrongAnimal();
 		WrongAnimal(const std::string type);
 		WrongAnimal(const WrongAnimal& other);
 		WrongAnimal &operator=(const WrongAnimal& other);
-		virtual	~WrongAnimal(void);
+		virtual	~WrongAnimal();
 
-		virtual std::string getType(void) const;
-		void	makeSound(void) const;
+		virtual std::string getType() const;
+		void		makeSound(void) const;
 };
 
 #endif

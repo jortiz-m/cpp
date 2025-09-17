@@ -2,15 +2,15 @@
 
 Animal::Animal() : type("None") 
 {
-    std::cout << "Animal " << type << " created" << std::endl;
+	std::cout << "Animal " << type << " created" << std::endl;
 }
 
-Animal::Animal(const std::string &type) : type(type)
+Animal::Animal(const std::string& type) : type(type)
 {
-    std::cout << "Animal of type " << type << "created" << std::endl;
+	std::cout << "Animal of type " << type << " created" << std::endl;
 }
 
-Animal::Animal(const Animal &other) : type(other.type)
+Animal::Animal(const Animal& other) : type(other.type)
 {
 	std::cout << "Animal copy constructor called for type " << type << std::endl;
 }
@@ -23,17 +23,17 @@ Animal& Animal::operator=(const Animal& other)
 	return (*this);
 }
 
-Animal::~Animal(void) 
-{
-	std::cout << "Animal destroyed! Type: " << type << std::endl;
-}
-
 void	Animal::makeSound(void) const 
 {
-	std::cout << "Animal of type " << type << " makes a generic sound!" << std::endl;
+	std::cout << "Animal of type " << type << " makes a generic Sound!" << std::endl;
 }
 
-std::string	Animal::getType(void) const 
+std::string	Animal::getType() const 
 {
 	return (type);
+}
+
+Animal::~Animal() 
+{
+	std::cout << "Animal destroyed! Type: " << type << std::endl;
 }

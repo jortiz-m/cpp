@@ -1,10 +1,12 @@
 NAME = animal
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I. -I./Animal
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I. -IAnimal
 
-SRC = main.cpp Animal/Animal.cpp Dog/Dog.cpp Cat/Cat.cpp WrongAnimal/WrongAnimal.cpp WrongAnimal/WrongCat.cpp
-OBJ = $(SRC:.cpp=.o)
+SRC = main.cpp Animal/Animal.cpp Dog/Dog.cpp Cat/Cat.cpp \
+		WrongAnimal/WrongAnimal.cpp WrongCat/WrongCat.cpp
+OBJDIR = obj
+OBJ = $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
 all: $(NAME)
 
@@ -12,11 +14,16 @@ $(NAME): $(OBJ)
 	@$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 	@echo "Compiled $(NAME)"
 
-%.o: %.cpp
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
+
+
+$(OBJDIR)/%.o: %.cpp | $(OBJDIR)
+	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -f $(OBJ)
+	@rm -rf $(OBJDIR)
 	@echo "Cleaned"
 
 fclean: clean

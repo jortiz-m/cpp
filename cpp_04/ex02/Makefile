@@ -1,9 +1,10 @@
 NAME = animal
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I. -I./Animal
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I. -IAnimal
 
-SRC = main.cpp Animal/Animal.cpp Dog/Dog.cpp Cat/Cat.cpp WrongAnimal/WrongAnimal.cpp WrongCat/WrongCat.cpp Brain/Brain.cpp
+SRC = main.cpp Animal/Animal.cpp Dog/Dog.cpp Cat/Cat.cpp \
+		WrongAnimal/WrongAnimal.cpp WrongCat/WrongCat.cpp Brain/Brain.cpp
 OBJDIR = obj
 OBJ = $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 

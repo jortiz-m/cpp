@@ -1,6 +1,6 @@
 #include "Dog.hpp"
 
-Dog::Dog(void) : Animal("Dog") 
+Dog::Dog() : Animal("Dog") 
 {
 	std::cout << "Dog created!" << std::endl;
 }
@@ -10,7 +10,7 @@ Dog::Dog(const Dog& other) : Animal(other)
 	std::cout << "Dog copy constructor called" << std::endl;
 }
 
-Dog &Dog::operator=(const Dog& other) 
+Dog& Dog::operator=(const Dog& other) 
 {
 	if (this != &other)
 		Animal::operator=(other);
@@ -20,10 +20,10 @@ Dog &Dog::operator=(const Dog& other)
 
 void	Dog::makeSound(void) const 
 {
-	std::cout << "Animal of type " << type << " says: Woof! Woof!" << std::endl;
+	std::cout << "Dog says: Woof! Woof!" << std::endl;
 }
 
-Dog::~Dog(void) 
+Dog::~Dog() 
 {
 	std::cout << "Dog destroyed!" << std::endl;
 }
