@@ -3,13 +3,15 @@
 
 #include "../Bureaucrat/Bureaucrat.hpp"
 
+class Bureaucrat;
+
 class Form
 {
 	private:
-		const std::string 	name;
-		bool				beSign;
-		int const			gradeToSign;
-		int const			gradeToExecute;
+		const std::string 	_name;
+		bool				_beSign;
+		int const			_gradeToSign;
+		int const			_gradeToExecute;
 
 	public:
 		class GradeTooHighException : public std::exception{
@@ -22,18 +24,18 @@ class Form
 		};
 
 		Form();
-		Form(const std::string name, const gradeToSign, const int gradeToExecute);
+		Form(const std::string& name, int gradeToSign, int gradeToExecute);
 		Form(const Form& other);
 		Form &operator=(const Form& other);
 		~Form();
 
 		const std::string& 	getName() const;
-		bool				isSigned() const;
 		int					getGradeToSign() const;
 		int					getGradeToExecute() const;
+		bool				isSigned() const;
 
-		void				beSign(cosnt Bureaucrat& Bureaucrat);
-}
+		void				beSigned(const Bureaucrat& Bureaucrat);
+};
 
 std::ostream &operator<<(std::ostream &os, const Form &form);
 

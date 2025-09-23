@@ -1,4 +1,5 @@
 #include "Bureaucrat.hpp"
+#include "Form.hpp"
 
 Bureaucrat::Bureaucrat() : name("Undefined"), grade(150)
 {
@@ -68,4 +69,9 @@ std::ostream& operator<<(std::ostream& os, const Bureaucrat& bureaucrat)
 {
 	os << bureaucrat.getName() << ", bureaucrat grade: " << bureaucrat.getGrade();
 	return os;
+}
+
+void	Bureaucrat::signForm(Form& form) 
+{
+	form.beSigned(*this);
 }

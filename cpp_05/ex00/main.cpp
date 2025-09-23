@@ -7,9 +7,9 @@ int main()
         Bureaucrat b("Juan");
         b.decrementGrade();
     } 
-	catch (const std::exception& exception)
+	catch (const std::exception& e)
 	{
-        std::cout << exception.what() << std::endl;
+        std::cout << e.what() << std::endl;
     } 
     return (0);
 }

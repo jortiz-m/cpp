@@ -1,7 +1,7 @@
 NAME = Bureaucrat
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I. -IAnimal
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRC = main.cpp Bureaucrat.cpp
 OBJDIR = obj
