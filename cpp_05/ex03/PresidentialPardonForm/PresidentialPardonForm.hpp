@@ -9,15 +9,14 @@ class PresidentialPardonForm : public AForm
 	    std::string 	_target;
 
 	public:
+	class noSigned : public std::exception{
+			public:
+				const char* what() const throw();
+		};
 	    PresidentialPardonForm(const std::string& target);
 	    PresidentialPardonForm(const PresidentialPardonForm& other);
 	    PresidentialPardonForm& operator=(const PresidentialPardonForm& other);
 	    virtual ~PresidentialPardonForm();
-
-		class NoSigned : public std::exception{
-			public:
-				const char* what() const throw();
-		};
 
 	    void 			execute(const Bureaucrat& executor) const;
 };

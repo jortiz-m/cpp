@@ -1,9 +1,9 @@
 #include "Form.hpp"
 
-Form::Form() : _name("Undefined"), _beSign(false), _gradeToSign(150), _gradeToExecute(150){}
+Form::Form() : _name("Undefined"), _isSigned(false), _gradeToSign(150), _gradeToExecute(150){}
 
 Form::Form(const std::string& name, int gradeToSign, int gradeToExecute) :
-		_name(name), _beSign(false), _gradeToSign(gradeToSign), _gradeToExecute(gradeToExecute)
+		_name(name), _isSigned(false), _gradeToSign(gradeToSign), _gradeToExecute(gradeToExecute)
 {
 	if(gradeToSign < 1 || gradeToExecute < 1)
 		throw GradeTooHighException();
@@ -11,10 +11,13 @@ Form::Form(const std::string& name, int gradeToSign, int gradeToExecute) :
 		throw GradeTooLowException();
 }
 
+Form::Form(const Form &other)
+	: _name(other._name), _isSigned(other._isSigned), _gradeToSign(other._gradeToSign), _gradeToExecute(other._gradeToExecute) {}
+
 Form& Form::operator=(const Form& other)
 {
 	if(this != &other)
-		_beSign = other._beSign;
+		_isSigned = other._isSigned;
 	return (*this);
 }
 
@@ -47,30 +50,32 @@ int Form::getGradeToExecute() const
 
 bool	Form::isSigned() const
 {
-	return (_beSign);
+	return (_isSigned);
 }
 
 void	Form::beSigned(const Bureaucrat& bureaucrat)
 {
-	int		gradeBureaucrat;
-
-	gradeBureaucrat = bureaucrat.getGrade(); 
-	if (_gradeToSign < 1)
-		throw GradeTooLowException();
-	else if (_gradeToSign > 150)
-		throw GradeTooHighException();
-	if (!isSigned())
+	if (_isSigned)
 	{
-		if (gradeBureaucrat <= _gradeToSign)
-		{
-			_beSign = true;
-			std::cout << bureaucrat.getName() << " signed " << _name << std::endl;
-		}
-		else
-			std::cout << bureaucrat.getName() << " couldn’t sign " << _name <<  " because grade is not enough." << std::endl; 
-
+		std::cout << "It's already signed." << std::endl;
+		return;
+	}
+	if (bureaucrat.getGrade() <= _gradeToSign)
+	{
+		_isSigned = true;
+		std::cout << bureaucrat.getName() << " signed " << _name << std::endl;
 	}
 	else
-		std::cout << "It's already signed." << std::endl;
+	{
+		std::cout << bureaucrat.getName() << " couldn’t sign " << _name <<  " because grade is not high enough." << std::endl;
+		throw GradeTooLowException();
+	}
+}
 
+std::ostream &operator<<(std::ostream &os, const Form &form)
+{
+	os << "Form '" << form.getName() << "', signed: " << (form.isSigned() ? "yes" : "no")
+	   << ", grade required to sign: " << form.getGradeToSign()
+	   << ", grade required to execute: " << form.getGradeToExecute() << ".";
+	return os;
 }

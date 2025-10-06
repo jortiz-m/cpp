@@ -8,7 +8,7 @@ class ShrubberyCreationForm : public AForm
 	private:
 		std::string		_target;
 	public:
-		class NoSigned : public std::exception{
+		class noSigned : public std::exception{
 			public:
 				const char* what() const throw();
 		};

@@ -18,7 +18,7 @@ RobotomyRequestForm& RobotomyRequestForm::operator=(const RobotomyRequestForm& o
 	return *this;
 }
 
-const char* RobotomyRequestForm::NoSigned::what() const throw() 
+const char* RobotomyRequestForm::noSigned::what() const throw() 
 {
 	return ("Exception: it's no signed.");
 }

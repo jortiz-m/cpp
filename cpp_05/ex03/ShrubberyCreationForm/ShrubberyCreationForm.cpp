@@ -18,7 +18,7 @@ ShrubberyCreationForm& ShrubberyCreationForm::operator=(const ShrubberyCreationF
 	return *this;
 }
 
-const char* ShrubberyCreationForm::NoSigned::what() const throw() 
+const char* ShrubberyCreationForm::noSigned::what() const throw() 
 {
 	return ("Exception: it's no signed.");
 }
