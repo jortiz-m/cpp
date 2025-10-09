@@ -1,7 +1,12 @@
-#ifndef SCALARConverter_HPP
-#define SCALARSConverter_HPP
+#ifndef SCALARCONVERTER_HPP
+#define SCALARCONVERTER_HPP
 
-#include "iostream"
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <limits>
+#include <iomanip>
+#include <cmath>
 
 class ScalarConverter {
 	private:
@@ -12,7 +17,7 @@ class ScalarConverter {
 		ScalarConverter& operator=(const ScalarConverter& other);
 		~ScalarConverter();
 	
-	static void convert(std::string &str);
+	static void convert(const std::string &str);
 };
 
 #endif
