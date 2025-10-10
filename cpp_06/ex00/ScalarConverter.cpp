@@ -1,4 +1,5 @@
 #include "ScalarConverter.hpp"
+#include <cctype>
 
 ScalarConverter::ScalarConverter() {}
 
@@ -16,9 +17,11 @@ ScalarConverter::~ScalarConverter() {}
 
 bool	is_char(const std::string &str)
 {
-	if (str.length() == 3 && (str[0] == '\'' && str[2] == '\''))
-		return true;
-	return false;
+    if (str.length() == 3 && str[0] == '\'' && str[2] == '\'')
+        return true;
+    if (str.length() == 1)
+        return !std::isdigit(static_cast<unsigned char>(str[0]));
+    return false;
 }
 
 bool	is_int(const std::string &str)
@@ -88,12 +91,22 @@ void ScalarConverter::convert(const std::string &str)
 {
     if (is_char(str))
     {
-        char c = str[1];
-        int n = static_cast<int>(c);
-        float f = static_cast<float>(c);
-        double d = static_cast<double>(c);
+        char c;
+        
+        if (str.length() == 1)
+            c = str[0];
+        else
+            c = str[1];
 
-        std::cout << "char: " << c << std::endl;
+        int n = static_cast<int>(static_cast<unsigned char>(c));
+        float f = static_cast<float>(n);
+        double d = static_cast<double>(n);
+
+        if (::isprint(static_cast<unsigned char>(c)))
+            std::cout << "char: '" << c << "'" << std::endl;
+        else
+            std::cout << "char: Non displayable" << std::endl;
+
         std::cout << "int: " << n << std::endl;
         std::cout << "float: " << f << "f" << std::endl;
         std::cout << "double: " << d << std::endl;
