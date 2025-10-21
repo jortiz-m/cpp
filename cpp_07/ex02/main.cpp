@@ -1,4 +1,4 @@
-#include "array.hpp"
+#include "Array.hpp"
 
 int main(){
     try {
@@ -7,7 +7,6 @@ int main(){
         // Empty array
         Array<int> arr1;
         std::cout << "arr1 size: " << arr1.size() << std::endl;
-    
         // Array with size
         Array<int> arr2(5);
         for (unsigned int i = 0; i < arr2.size(); ++i)
@@ -38,7 +37,7 @@ int main(){
         std::cout << std::endl;
     
         // Out-of-range access
-        std::cout << "Accessing arr2[10] (should throw): ";
+        std::cout << "Accessing arr2[10]: ";
         std::cout << arr2[10] << std::endl;
     
     } 
@@ -51,7 +50,7 @@ int main(){
     Array<std::string> strArr(3);
     strArr[0] = "hello";
     strArr[1] = "world";
-    strArr[2] = "!";
+    strArr[2] = "2025";
     
     for (unsigned int i = 0; i < strArr.size(); ++i)
         std::cout << strArr[i] << " ";

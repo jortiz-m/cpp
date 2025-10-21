@@ -13,7 +13,7 @@ Array<T>::Array(const Array &other) : _data(new T[other._size]()), _size(other._
 template <typename T>
 Array<T>& Array<T>::operator=(const Array &other) {
 	if (this != &other) {
-        delete[] _data; // liberar memoria previa
+        delete[] _data;
         _size = other._size;
         _data = new T[_size]();
         for (unsigned int i = 0; i < _size; ++i)
