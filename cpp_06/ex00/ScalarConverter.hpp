@@ -10,14 +10,15 @@
 
 class ScalarConverter {
 	private:
-
-	public:
 		ScalarConverter();
 		ScalarConverter(const ScalarConverter& other);
 		ScalarConverter& operator=(const ScalarConverter& other);
 		~ScalarConverter();
-	
-	static void convert(const std::string &str);
+
+	public:
+		static void convert(const std::string &str);
 };
 
 #endif
+
+// Al estar en estático puedes acceder al método sin instanciarlo
