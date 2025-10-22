@@ -16,7 +16,7 @@ Span::~Span() {}
 
 void Span::addNumber(int number) {
     if (_numbers.size() >= _maxSize)
-        throw std::exception();
+        throw std::runtime_error("Error: it's full.");
     _numbers.push_back(number);
 }
 
@@ -24,14 +24,14 @@ template <typename It>
 void Span::addNumbers(It begin, It end) {
     for (It it = begin; it != end; ++it) {
         if (_numbers.size() >= _maxSize)
-            throw std::exception();
+            throw std::runtime_error("Error: it's full.");
         _numbers.push_back(*it);
     }
 }
 
 int Span::shortestSpan() const {
     if (_numbers.size() < 2)
-        throw std::exception();
+        throw std::runtime_error("Error: needed at least two elements.");
 
     std::vector<int> sorted(_numbers);
     std::sort(sorted.begin(), sorted.end());
@@ -42,13 +42,12 @@ int Span::shortestSpan() const {
         if (span < minSpan)
             minSpan = span;
     }
-
     return minSpan;
 }
 
 int Span::longestSpan() const {
     if (_numbers.size() < 2)
-        throw std::exception();
+        throw std::runtime_error("Error: needed at least two elements.");
 
     int minVal = *std::min_element(_numbers.begin(), _numbers.end());
     int maxVal = *std::max_element(_numbers.begin(), _numbers.end());
