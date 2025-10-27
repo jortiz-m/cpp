@@ -7,10 +7,11 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include <map>
+#include <ctime>
 
 class BitcoinExchange {
 	private:
-		bool								_loadDataBase;
 		std::map<std::string, double>		_dataBase;
 	public:
 		BitcoinExchange();
@@ -18,8 +19,14 @@ class BitcoinExchange {
 		BitcoinExchange& operator=(const BitcoinExchange& other);
 		~BitcoinExchange();
 
-		void	loadDataBase(const std::string& dataBase);
-		void	getDataBase();
+		void			loadDataBase(const std::string& dataBase);
+		void			getDataBase();
+		bool 			validDate(const std::string& date);
+		bool 			validValue(const std::string& value);
+		int 			daysInMonth(int y, int m);
+		bool 			isLeapYear(int y);
+		bool			isDateAfter(const std::string& date, const std::string& today);
+		std::string 	getTodayDate();
 
 };
 
