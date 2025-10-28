@@ -15,7 +15,11 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& other) {
 
 BitcoinExchange::~BitcoinExchange() {}
 
-std::string BitcoinExchange::getTodayDate() {
+/****************************** VALIDATES *******************************/
+
+					/* --- Date of today --- */
+
+static std::string getTodayDate() {
     time_t t = time(NULL);
     struct tm *now = localtime(&t);
     char actualDaty[11];
@@ -23,15 +27,17 @@ std::string BitcoinExchange::getTodayDate() {
     return std::string(actualDaty);
 }
 
-bool BitcoinExchange::isDateAfter(const std::string& date, const std::string& today) {
+static bool isDateAfter(const std::string& date, const std::string& today) {
     return date > today;
 }
 
-bool BitcoinExchange::isLeapYear(int y) {
+					/* --- Days in diferents years --- */
+
+static bool isLeapYear(int y) {
     return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
 }
 
-int BitcoinExchange::daysInMonth(int y, int m) {
+static int daysInMonth(int y, int m) {
     switch (m) {
 		case 1: return 31;
 		case 2: return isLeapYear(y) ? 29 : 28;
@@ -49,16 +55,60 @@ int BitcoinExchange::daysInMonth(int y, int m) {
 	}
 }
 
+static bool correctYear(int year, const std::string& date) {
+	if (year < 2009) {
+		std::cerr << "Error: invalid date, can't be less than 2009." << std::endl;
+		return false;
+	}
+	if (isDateAfter(date, getTodayDate())) {
+		std::cerr << "Error: invalid date, can't be a day in the future." << std::endl;
+		return false;
+	}
+	return true;
+}
+
+					/* --- Months --- */
+
+static bool correctMonth(int month) {
+	if (month < 1 || month > 12) {
+		std::cerr << "Error: invalid date, the month must be between 1 and 12." << std::endl;
+		return false;
+	}
+	return true;
+}
+
+					/* --- Days --- */
+
+static bool correctDay(int year, int month, int day) {
+	int maxDay = daysInMonth(year, month);
+    if (day < 1 || day > maxDay) {
+        std::cerr << "Error: invalid date, the day must be between 1 and " << maxDay << "." << std::endl;
+        return false;
+    }
+	return true;
+}
+
+					/* --- Validate date --- */
+
+
 bool BitcoinExchange::validDate(const std::string& date){
-	if (date.size() != 10 || date[4] != '-' || date[7] != '-')
+	if (date.size() != 10 || date[4] != '-' || date[7] != '-') {
+			std::cerr << "Error: invalid date, must be < YYYY | MM | DD >" << std::endl;
             return false;
-	int y = std::atoi(date.substr(0,4).c_str());
-    int m = std::atoi(date.substr(5,2).c_str());
-    int d = std::atoi(date.substr(8,2).c_str());
-	if (y < 2009 || y > 2025 || m < 1 || m > 12 || d < 1 || d > daysInMonth(y, m))
-            return false;
+	}
+	int year = std::atoi(date.substr(0,4).c_str());
+    int month = std::atoi(date.substr(5,2).c_str());
+    int day = std::atoi(date.substr(8,2).c_str());
+	if (!correctYear(year, date) || !correctMonth(month) || !correctDay(year, month, day))
+		return false;
+	//if (_dataBase.count(date) > 0) {
+    //    std::cerr << "Error: duplicate date." << std::endl;
+	//	return false;
+	//}
     return true;
 }
+
+					/* --- Validate value --- */
 
 bool BitcoinExchange::validValue(const std::string& value){
 	int count = 0;
@@ -68,56 +118,62 @@ bool BitcoinExchange::validValue(const std::string& value){
             if (count > 1)
                 return false;
         } 
-		else if (!isdigit(value[i]))
+		else if (!isdigit(value[i])) {
+			std::cerr << "Error: invalid value, only positive numbers required." << std::endl;
             return false;
+		}
 	}
 	double dValue = std::atof(value.c_str());
-	if (dValue < 0.0 || dValue > 1000.0)
-            return false;
-        return true;
+	if (dValue < 0.0 || dValue > 1000.0) {
+		std::cerr << "Error: invalid value, must be between 1.0 and 1000.0" << std::endl;
+		return false;
+	}
+    return true;
 }
 
+
+/********************************  - DATA - ********************************/
+
+					/* --- Load data --- */
+
 void BitcoinExchange::loadDataBase(const std::string& dataBase) {
+
     std::ifstream file(dataBase.c_str());
+
     if (!file.is_open()) {
         std::cerr << "Can't open data base." << std::endl;
         exit(1);
     }
+
 	std::string line;
 	if (!std::getline(file, line))
         std::cerr << "Can't read file." << std::endl;
-	std::string today = getTodayDate();
 
     while (std::getline(file, line)) {
 		std::istringstream ss(line);
 		std::string date, value;
-		bool valid = true;
 
-		if (!(std::getline(ss, date, ',') && std::getline(ss, value))) {
-            std::cerr << "Error: invalid format " << line << std::endl;
-        }
-		else if (!validDate(date)){
-			std::cerr << "Error: invalid date, " <<date << std::endl;
-			valid = false;
+		if (checkCSVdata(date, value, ss)){
+			double dValue = std::atof(value.c_str());
+			_dataBase[date] = dValue;
+			std::cout << date << " => " << dValue << std::endl;
 		}
-		else if (isDateAfter(date, today)) {
-            std::cerr << "Error: date in the future, " << date << std::endl;
-			valid = false;
-        }
-		if (!validValue(value)){
-			std::cerr << "Error: invalid value, " << value << std::endl;
-			valid = false;
-		}
-		if (_dataBase.count(date) > 0) {
-            std::cerr << "Error: duplicate date, " << date << std::endl;
-			valid = false;
-        }
-		if (valid) {
-            double dValue = std::atof(value.c_str());
-            _dataBase[date] = dValue;
-            std::cout << date << " => " << dValue << std::endl;
-        }
-	}
+    }
+}
+
+					/* --- Check data --- */
+
+bool BitcoinExchange::checkCSVdata(std::string& date, std::string& value, std::istringstream& ss) {
+
+	if (!(std::getline(ss, date, ',') && std::getline(ss, value)) || date.length() != 10) {
+        std::cerr << "Error: invalid format, must be < YYYY - MM - DD , value >" << std::endl;
+		return false;
+    }
+	else if (!validDate(date))
+		return false;
+	else if(!validValue(value))
+		return false;
+	return true;
 }
 
 void BitcoinExchange::getDataBase() {
@@ -125,4 +181,68 @@ void BitcoinExchange::getDataBase() {
 	for (; it != _dataBase.end(); ++it) {
 		std::cout << it->first << " => " << it->second << std::endl;
 	}
+}
+
+/********************************  - INPUT - ********************************/
+
+					/* --- Load input data --- */
+
+static bool hasTxtExtension(const std::string& filename) {
+    size_t pos = filename.rfind('.');
+    if (pos == std::string::npos)
+        return false;
+    return filename.substr(pos) == ".txt";
+}
+
+void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
+
+    std::ifstream file(inputDataBase.c_str());
+
+	if (!hasTxtExtension(inputDataBase)) {
+        std::cerr << "Error: file extension must be .txt" << std::endl;
+        exit(1);
+    }
+    if (!file.is_open()) {
+        std::cerr << "Can't open input data base." << std::endl;
+        exit(1);
+    }
+
+	std::string line;
+	if (!std::getline(file, line))
+        std::cerr << "Can't read file." << std::endl;
+
+    while (std::getline(file, line)) {
+		std::istringstream ss(line);
+		std::string date, value;
+
+		if (checkInputData(date, value, ss)){
+			double dValue = std::atof(value.c_str());
+			_inputDataBase[date] = dValue;
+			std::cout << date << " => " << dValue << std::endl;
+		}
+    }
+}
+
+					/* --- Check input data --- */
+
+static std::string trim(const std::string& s) {
+    size_t start = s.find_first_not_of(" \t\r\n");
+    size_t end = s.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos || end == std::string::npos)
+        return "";
+    return s.substr(start, end - start + 1);
+}
+
+bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std::istringstream& ss) {
+    if (!(std::getline(ss, date, '|') && std::getline(ss, value))) {
+        std::cerr << "Error: invalid format, must be < YYYY-MM-DD | value >" << std::endl;
+        return false;
+    }
+    date = trim(date);
+    value = trim(value);
+    if (!validDate(date))
+        return false;
+    if (!validValue(value))
+        return false;
+    return true;
 }

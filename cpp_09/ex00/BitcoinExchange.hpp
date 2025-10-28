@@ -9,10 +9,12 @@
 #include <cctype>
 #include <map>
 #include <ctime>
+#include <cfloat>
 
 class BitcoinExchange {
 	private:
 		std::map<std::string, double>		_dataBase;
+		std::map<std::string, double>		_inputDataBase;
 	public:
 		BitcoinExchange();
 		BitcoinExchange(const BitcoinExchange& other);
@@ -25,8 +27,10 @@ class BitcoinExchange {
 		bool 			validValue(const std::string& value);
 		int 			daysInMonth(int y, int m);
 		bool 			isLeapYear(int y);
-		bool			isDateAfter(const std::string& date, const std::string& today);
-		std::string 	getTodayDate();
+		bool			checkCSVdata(std::string& date, std::string& value, std::istringstream& ss);
+
+		void			loadInputDataBase(const std::string& dataBase);
+		bool 			checkInputData(std::string& date, std::string& value, std::istringstream& ss);
 
 };
 
