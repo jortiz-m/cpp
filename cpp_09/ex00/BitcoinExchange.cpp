@@ -17,6 +17,16 @@ BitcoinExchange::~BitcoinExchange() {}
 
 /****************************** VALIDATES *******************************/
 
+					/* --- Spaces--- */
+
+static std::string trim(const std::string& s) {
+    size_t start = s.find_first_not_of(" \t\r\n");
+    size_t end = s.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos || end == std::string::npos)
+        return "";
+    return s.substr(start, end - start + 1);
+}
+
 					/* --- Date of today --- */
 
 static std::string getTodayDate() {
@@ -90,21 +100,12 @@ static bool correctDay(int year, int month, int day) {
 
 					/* --- Validate date --- */
 
-
 bool BitcoinExchange::validDate(const std::string& date){
-	if (date.size() != 10 || date[4] != '-' || date[7] != '-') {
-			std::cerr << "Error: invalid date, must be < YYYY | MM | DD >" << std::endl;
-            return false;
-	}
 	int year = std::atoi(date.substr(0,4).c_str());
     int month = std::atoi(date.substr(5,2).c_str());
     int day = std::atoi(date.substr(8,2).c_str());
 	if (!correctYear(year, date) || !correctMonth(month) || !correctDay(year, month, day))
 		return false;
-	//if (_dataBase.count(date) > 0) {
-    //    std::cerr << "Error: duplicate date." << std::endl;
-	//	return false;
-	//}
     return true;
 }
 
@@ -118,7 +119,7 @@ bool BitcoinExchange::validValue(const std::string& value){
             if (count > 1)
                 return false;
         } 
-		else if (!isdigit(value[i])) {
+		else if (!isdigit(value[i])) { // tener en cuenta el signo +
 			std::cerr << "Error: invalid value, only positive numbers required." << std::endl;
             return false;
 		}
@@ -141,22 +142,27 @@ void BitcoinExchange::loadDataBase(const std::string& dataBase) {
     std::ifstream file(dataBase.c_str());
 
     if (!file.is_open()) {
-        std::cerr << "Can't open data base." << std::endl;
+        std::cerr << "Can't open database." << std::endl;
         exit(1);
     }
 
 	std::string line;
 	if (!std::getline(file, line))
-        std::cerr << "Can't read file." << std::endl;
+        std::cerr << "Can't read file database." << std::endl;
 
+	while (line.empty())
+		std::getline(file, line);
+	
     while (std::getline(file, line)) {
 		std::istringstream ss(line);
 		std::string date, value;
+		if (line.empty())
+			continue ;
 
 		if (checkCSVdata(date, value, ss)){
 			double dValue = std::atof(value.c_str());
 			_dataBase[date] = dValue;
-			std::cout << date << " => " << dValue << std::endl;
+			//std::cout << date << " => " << dValue << std::endl;
 		}
     }
 }
@@ -164,23 +170,16 @@ void BitcoinExchange::loadDataBase(const std::string& dataBase) {
 					/* --- Check data --- */
 
 bool BitcoinExchange::checkCSVdata(std::string& date, std::string& value, std::istringstream& ss) {
-
 	if (!(std::getline(ss, date, ',') && std::getline(ss, value)) || date.length() != 10) {
-        std::cerr << "Error: invalid format, must be < YYYY - MM - DD , value >" << std::endl;
-		return false;
+        std::cerr << "Error: invalid database format, must be < YYYY-MM-DD,value >" << std::endl;
+		exit (1);
+		//return false;
     }
 	else if (!validDate(date))
 		return false;
 	else if(!validValue(value))
 		return false;
 	return true;
-}
-
-void BitcoinExchange::getDataBase() {
-	std::map<std::string, double>::iterator it = _dataBase.begin();
-	for (; it != _dataBase.end(); ++it) {
-		std::cout << it->first << " => " << it->second << std::endl;
-	}
 }
 
 /********************************  - INPUT - ********************************/
@@ -208,41 +207,79 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
     }
 
 	std::string line;
+	while (line.empty())
+		std::getline(file, line);
+
 	if (!std::getline(file, line))
         std::cerr << "Can't read file." << std::endl;
 
     while (std::getline(file, line)) {
+
+		if (line.empty())
+        	continue;
 		std::istringstream ss(line);
 		std::string date, value;
 
 		if (checkInputData(date, value, ss)){
-			double dValue = std::atof(value.c_str());
-			_inputDataBase[date] = dValue;
-			std::cout << date << " => " << dValue << std::endl;
+			 _inputDataBase += line + "\n";
+            std::cout << date << " => " << value << std::endl;
 		}
     }
 }
 
 					/* --- Check input data --- */
 
-static std::string trim(const std::string& s) {
-    size_t start = s.find_first_not_of(" \t\r\n");
-    size_t end = s.find_last_not_of(" \t\r\n");
-    if (start == std::string::npos || end == std::string::npos)
-        return "";
-    return s.substr(start, end - start + 1);
-}
-
 bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std::istringstream& ss) {
-    if (!(std::getline(ss, date, '|') && std::getline(ss, value))) {
+    if (!(std::getline(ss, date, '|') && std::getline(ss, value)) 
+		&& ((date.size() != 11 || date[4] != '-' || date[7] != '-'))) {
         std::cerr << "Error: invalid format, must be < YYYY-MM-DD | value >" << std::endl;
         return false;
     }
-    date = trim(date);
+	date = trim(date);
     value = trim(value);
     if (!validDate(date))
         return false;
     if (!validValue(value))
         return false;
     return true;
+}
+
+					/* --- Process input data --- */
+
+void BitcoinExchange::processInput() {
+    std::istringstream ss(_inputDataBase);
+    std::string line;
+
+    while (std::getline(ss, line)) {
+        if (line.empty())
+            continue;
+            
+        std::istringstream lineSS(line);
+        std::string inputDate, inputValue;
+        
+        if (std::getline(lineSS, inputDate, '|') && std::getline(lineSS, inputValue)) {
+            inputDate = trim(inputDate);
+            inputValue = trim(inputValue);
+            double dInputValue = std::atof(inputValue.c_str());
+            
+            // Busca la fecha exacta en _dataBase
+            std::map<std::string, double>::iterator dataIt = _dataBase.find(inputDate);
+            
+            if (dataIt != _dataBase.end()) {
+                // Fecha exacta encontrada
+                std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
+            } 
+            else {
+                // Busca la fecha más cercana anterior
+                dataIt = _dataBase.lower_bound(inputDate);
+                if (dataIt == _dataBase.begin()) {
+                    std::cerr << "No data available for date " << inputDate << std::endl;
+                } 
+                else {
+                    --dataIt; // Retrocede a la fecha anterior
+                    std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
+                }
+            }
+        }
+    }
 }
