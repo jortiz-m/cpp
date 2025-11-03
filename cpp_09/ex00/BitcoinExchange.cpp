@@ -33,7 +33,7 @@ static std::string getTodayDate() {
     time_t t = time(NULL);
     struct tm *now = localtime(&t);
     char actualDaty[11];
-    std::sprintf(actualDaty, "%04d-%02d-%02d", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday);
+    std::snprintf(actualDaty, sizeof(actualDaty), "%04d-%02d-%02d", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday);
     return std::string(actualDaty);
 }
 

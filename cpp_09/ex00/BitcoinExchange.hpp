@@ -1,6 +1,11 @@
 #ifndef BITCOINEXCHANGE_HPP
 #define BITCOINEXCHANGE_HPP
 
+/*enum Type {
+	DATA,
+	INPUT
+};*/
+
 #include <fstream>
 #include <sstream>
 #include <string>
