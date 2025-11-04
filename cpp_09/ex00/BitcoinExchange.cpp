@@ -138,7 +138,6 @@ bool BitcoinExchange::validDate(const std::string& date, Type context) {
 					/* --- Validate value --- */
 
 bool BitcoinExchange::validValue(const std::string& value, Type context) {
-    // rechazar cualquier signo '+' en el valor
     if (value.find('+') != std::string::npos) {
         if (context == INPUT) {
             std::cerr << "Error: invalid value, '+' sign not allowed." << std::endl;
@@ -149,7 +148,6 @@ bool BitcoinExchange::validValue(const std::string& value, Type context) {
             exit(1);
         }
     }
-
     int count = 0;
     for (size_t i = 0; i < value.size(); ++i) {
         char c = value[i];
@@ -257,55 +255,66 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
 
     std::ifstream file(inputDataBase.c_str());
 
-	if (!hasTxtExtension(inputDataBase)) {
+    if (!hasTxtExtension(inputDataBase)) {
         std::cerr << "Error: file extension must be .txt" << std::endl;
         exit(1);
     }
     if (!file.is_open()) {
-        std::cerr << "Can't open input data base." << std::endl;
+        std::cerr << "Error: can't open input data base." << std::endl;
         exit(1);
     }
 
-	std::string line;
-	while (line.empty())
-		std::getline(file, line);
+    // leer primera línea (si no hay ninguna, el input está vacío -> error y exit)
+    std::string line;
+    int lineno = 0;
+    if (!std::getline(file, line)) {
+        std::cerr << "Error: input is empty." << std::endl;
+        exit(1);
+    }
+    ++lineno;
 
-	if (!std::getline(file, line))
-        std::cerr << "Can't read file." << std::endl;
+    // detectar si la primera línea es cabecera "date" / "value"
+    std::string first = trim(line);
+    std::string lower = first;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    bool isHeader = (lower.find("date") != std::string::npos && lower.find("value") != std::string::npos);
 
+    // almacenar la primera línea solo si no es cabecera
+    if (!isHeader && !first.empty())
+        _inputDataBase += first + "\n";
+
+    // almacenar el resto de líneas sin validar aquí
     while (std::getline(file, line)) {
+        ++lineno;
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos)
+            continue;
+        _inputDataBase += line + "\n";
+    }
 
-		if (line.empty())
-        	continue;
-		std::istringstream ss(line);
-		std::string date, value;
-
-		if (checkInputData(date, value, ss)){
-			 _inputDataBase += line + "\n";
-            //std::cout << date << " => " << value << std::endl;
-		}
+    // si tras procesar no hay líneas (útiles), informar y salir
+    if (_inputDataBase.empty()) {
+        std::cerr << "Error: input is empty." << std::endl;
+        exit(1);
     }
 }
 
 					/* --- Check input data --- */
 
 bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std::istringstream& ss) {
-    // primero parsear
     if (!std::getline(ss, date, '|') || !std::getline(ss, value)) {
         std::cerr << "Error: invalid format, must be < YYYY-MM-DD | value >" << std::endl;
         return false;
     }
-    // limpiar espacios
     date = trim(date);
     value = trim(value);
 
-    // comprobar formato básico de fecha (YYYY-MM-DD -> longitud 10)
     if (date.size() != 10 || date[4] != '-' || date[7] != '-') {
         std::cerr << "Error: invalid date format, must be YYYY-MM-DD" << std::endl;
         return false;
     }
 
     Type context = INPUT;
+
     if (!validDate(date, context))
         return false;
     if (!validValue(value, context))
@@ -318,36 +327,37 @@ bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std:
 void BitcoinExchange::processInput() {
     std::istringstream ss(_inputDataBase);
     std::string line;
+    int lineno = 0;
 
     while (std::getline(ss, line)) {
+        ++lineno;
         if (line.empty())
             continue;
-            
+
         std::istringstream lineSS(line);
         std::string inputDate, inputValue;
-        
-        if (std::getline(lineSS, inputDate, '|') && std::getline(lineSS, inputValue)) {
-            inputDate = trim(inputDate);
-            inputValue = trim(inputValue);
-            double dInputValue = std::atof(inputValue.c_str());
-            
-            // Busca la fecha exacta en _dataBase
-            std::map<std::string, double>::iterator dataIt = _dataBase.find(inputDate);
-            
-            if (dataIt != _dataBase.end()) {
-                // Fecha exacta encontrada
+
+        // validar la línea aquí: checkInputData devuelve bool y YA imprime el mensaje de error si falla
+        if (!checkInputData(inputDate, inputValue, lineSS)) {
+            // sólo continuar (checkInputData ya muestra el mensaje)
+            continue;
+        }
+
+        double dInputValue = std::atof(inputValue.c_str());
+
+        // Buscar la fecha exacta en _dataBase
+        std::map<std::string, double>::iterator dataIt = _dataBase.find(inputDate);
+
+        if (dataIt != _dataBase.end()) {
+            std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
+        } else {
+            // Buscar la fecha más cercana anterior
+            dataIt = _dataBase.lower_bound(inputDate);
+            if (dataIt == _dataBase.begin()) {
+                std::cerr << "No data available for date " << inputDate << std::endl;
+            } else {
+                --dataIt; // Retrocede a la fecha anterior
                 std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
-            } 
-            else {
-                // Busca la fecha más cercana anterior
-                dataIt = _dataBase.lower_bound(inputDate);
-                if (dataIt == _dataBase.begin()) {
-                    std::cerr << "No data available for date " << inputDate << std::endl;
-                } 
-                else {
-                    --dataIt; // Retrocede a la fecha anterior
-                    std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
-                }
             }
         }
     }
