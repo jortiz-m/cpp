@@ -13,9 +13,7 @@ int main(int ac, char **av) {
 }
 
 /*
-
-	mensaje de error data: exit
-	signo +
+Cosas a testear:
 	si no hay valor pero fecha bien, bad input
 	input vacio
 	data vacia ( se contempla pero se queda pillao )

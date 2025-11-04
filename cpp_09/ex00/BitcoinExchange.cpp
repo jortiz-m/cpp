@@ -65,70 +65,129 @@ static int daysInMonth(int y, int m) {
 	}
 }
 
-static bool correctYear(int year, const std::string& date) {
+static bool correctYear(int year, const std::string& date, Type context) {
 	if (year < 2009) {
-		std::cerr << "Error: invalid date, can't be less than 2009." << std::endl;
-		return false;
+        if (context == INPUT) {
+            std::cerr << "Error: invalid date, can't be less than 2009." << std::endl;
+            return false;
+        }
+        if (context == DATA) {
+            std::cerr << "Error: invalid database date, can't be less than 2009." << std::endl;
+            exit(1);
+        }
 	}
 	if (isDateAfter(date, getTodayDate())) {
-		std::cerr << "Error: invalid date, can't be a day in the future." << std::endl;
-		return false;
+        if (context == INPUT) {
+            std::cerr << "Error: invalid date, can't be a day in the future." << std::endl;
+            return false;
+        }
+        if (context == DATA){
+            std::cerr << "Error: invalid database date, can't be a day in the future." << std::endl;
+            exit(1);
+        }
+
 	}
 	return true;
 }
 
 					/* --- Months --- */
 
-static bool correctMonth(int month) {
+static bool correctMonth(int month, Type context) {
 	if (month < 1 || month > 12) {
-		std::cerr << "Error: invalid date, the month must be between 1 and 12." << std::endl;
-		return false;
+        if (context == INPUT) {
+            std::cerr << "Error: invalid date, the month must be between 1 and 12." << std::endl;
+            return false;
+        }
+		if (context == DATA) {
+            std::cerr << "Error: invalid database date, the month must be between 1 and 12." << std::endl;
+            exit(1);
+        }
 	}
 	return true;
 }
 
 					/* --- Days --- */
 
-static bool correctDay(int year, int month, int day) {
+static bool correctDay(int year, int month, int day, Type context) {
 	int maxDay = daysInMonth(year, month);
     if (day < 1 || day > maxDay) {
-        std::cerr << "Error: invalid date, the day must be between 1 and " << maxDay << "." << std::endl;
-        return false;
+        if (context == INPUT) {
+            std::cerr << "Error: invalid date, the day must be between 1 and " << maxDay << "." << std::endl;
+            return false;
+        }
+        if (context == DATA) {
+            std::cerr << "Error: invalid database date, the day must be between 1 and " << maxDay << "." << std::endl;
+            exit(1);
+        }
     }
 	return true;
 }
 
 					/* --- Validate date --- */
 
-bool BitcoinExchange::validDate(const std::string& date){
+bool BitcoinExchange::validDate(const std::string& date, Type context) {
 	int year = std::atoi(date.substr(0,4).c_str());
     int month = std::atoi(date.substr(5,2).c_str());
     int day = std::atoi(date.substr(8,2).c_str());
-	if (!correctYear(year, date) || !correctMonth(month) || !correctDay(year, month, day))
+	if (!correctYear(year, date, context) || !correctMonth(month, context) || !correctDay(year, month, day, context)){
 		return false;
+    }
     return true;
 }
 
 					/* --- Validate value --- */
 
-bool BitcoinExchange::validValue(const std::string& value){
-	int count = 0;
-    for (size_t i = 0; i < value.size(); ++i) {
-        if (value[i] == '.') {
-            count++;
-            if (count > 1)
-                return false;
-        } 
-		else if (!isdigit(value[i])) { // tener en cuenta el signo +
-			std::cerr << "Error: invalid value, only positive numbers required." << std::endl;
+bool BitcoinExchange::validValue(const std::string& value, Type context) {
+    // rechazar cualquier signo '+' en el valor
+    if (value.find('+') != std::string::npos) {
+        if (context == INPUT) {
+            std::cerr << "Error: invalid value, '+' sign not allowed." << std::endl;
             return false;
-		}
-	}
-	double dValue = std::atof(value.c_str());
-	if (dValue < 0.0 || dValue > 1000.0) {
-		std::cerr << "Error: invalid value, must be between 1.0 and 1000.0" << std::endl;
-		return false;
-	}
+        }
+        if (context == DATA) {
+            std::cerr << "Error: invalid database value, '+' sign not allowed." << std::endl;
+            exit(1);
+        }
+    }
+
+    int count = 0;
+    for (size_t i = 0; i < value.size(); ++i) {
+        char c = value[i];
+        if (c == '.') {
+            count++;
+            if (count > 1) {
+                if (context == INPUT) {
+                    std::cerr << "Error: invalid value, only one decimal point allowed." << std::endl;
+                    return false;
+                }
+                if (context == DATA){
+                    std::cerr << "Error: invalid database value, only one decimal point allowed." << std::endl;
+                    exit(1);
+                }
+            }
+        } 
+        else if (!std::isdigit(static_cast<unsigned char>(c))) {
+            if (context == INPUT) {
+                std::cerr << "Error: invalid value, only positive numbers required." << std::endl;
+                return false;
+            }
+            if (context == DATA) {
+                std::cerr << "Error: invalid database value, only positive numbers required." << std::endl;
+                exit(1);
+            }
+        }
+    }
+    double dValue = std::atof(value.c_str());
+    if (dValue < 0.0 || dValue > 1000.0) {
+        if (context == INPUT) {
+            std::cerr << "Error: invalid value, must be between 0 and 1000.0" << std::endl;
+            return false;
+        }
+        if (context == DATA) {
+            std::cerr << "Error: invalid database value, must be between 0 and 1000.0" << std::endl; 
+            exit(1);
+        }
+    }
     return true;
 }
 
@@ -170,14 +229,15 @@ void BitcoinExchange::loadDataBase(const std::string& dataBase) {
 					/* --- Check data --- */
 
 bool BitcoinExchange::checkCSVdata(std::string& date, std::string& value, std::istringstream& ss) {
+    Type context = DATA;
+
 	if (!(std::getline(ss, date, ',') && std::getline(ss, value)) || date.length() != 10) {
         std::cerr << "Error: invalid database format, must be < YYYY-MM-DD,value >" << std::endl;
 		exit (1);
-		//return false;
     }
-	else if (!validDate(date))
+	else if (!validDate(date, context))
 		return false;
-	else if(!validValue(value))
+	else if(!validValue(value, context))
 		return false;
 	return true;
 }
@@ -222,7 +282,7 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
 
 		if (checkInputData(date, value, ss)){
 			 _inputDataBase += line + "\n";
-            std::cout << date << " => " << value << std::endl;
+            //std::cout << date << " => " << value << std::endl;
 		}
     }
 }
@@ -230,16 +290,25 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
 					/* --- Check input data --- */
 
 bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std::istringstream& ss) {
-    if (!(std::getline(ss, date, '|') && std::getline(ss, value)) 
-		&& ((date.size() != 11 || date[4] != '-' || date[7] != '-'))) {
+    // primero parsear
+    if (!std::getline(ss, date, '|') || !std::getline(ss, value)) {
         std::cerr << "Error: invalid format, must be < YYYY-MM-DD | value >" << std::endl;
         return false;
     }
-	date = trim(date);
+    // limpiar espacios
+    date = trim(date);
     value = trim(value);
-    if (!validDate(date))
+
+    // comprobar formato básico de fecha (YYYY-MM-DD -> longitud 10)
+    if (date.size() != 10 || date[4] != '-' || date[7] != '-') {
+        std::cerr << "Error: invalid date format, must be YYYY-MM-DD" << std::endl;
         return false;
-    if (!validValue(value))
+    }
+
+    Type context = INPUT;
+    if (!validDate(date, context))
+        return false;
+    if (!validValue(value, context))
         return false;
     return true;
 }

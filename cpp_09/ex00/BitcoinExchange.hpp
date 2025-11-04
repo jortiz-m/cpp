@@ -1,10 +1,10 @@
 #ifndef BITCOINEXCHANGE_HPP
 #define BITCOINEXCHANGE_HPP
 
-/*enum Type {
+enum Type {
 	DATA,
 	INPUT
-};*/
+};
 
 #include <fstream>
 #include <sstream>
@@ -27,17 +27,17 @@ class BitcoinExchange {
 		~BitcoinExchange();
 
 		void			loadDataBase(const std::string& dataBase);
-		void			getDataBase();
-		bool 			validDate(const std::string& date);
-		bool 			validValue(const std::string& value);
-		int 			daysInMonth(int y, int m);
-		bool 			isLeapYear(int y);
 		bool			checkCSVdata(std::string& date, std::string& value, std::istringstream& ss);
 
 		void			loadInputDataBase(const std::string& dataBase);
 		bool 			checkInputData(std::string& date, std::string& value, std::istringstream& ss);
+
 		void 			processInput();
 
+		bool 			validDate(const std::string& date, Type context);
+		bool 			validValue(const std::string& value, Type context);
+		int 			daysInMonth(int y, int m, Type context);
+		bool 			isLeapYear(int y);
 };
 
 #endif
