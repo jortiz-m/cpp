@@ -1,23 +1,23 @@
 #include "BitcoinExchange.hpp"
 
-BitcoinExchange::BitcoinExchange() {}
+BitcoinExchange::BitcoinExchange() : _dataBase(), _inputDataBase() {}
 
-BitcoinExchange::BitcoinExchange(const BitcoinExchange& other) {
-    _dataBase = other._dataBase;
-}
+BitcoinExchange::BitcoinExchange(const BitcoinExchange& other)
+    : _dataBase(other._dataBase), _inputDataBase(other._inputDataBase) {}
 
 BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& other) {
     if (this != &other) {
         _dataBase = other._dataBase;
+        _inputDataBase = other._inputDataBase;
     }
     return *this;
 }
 
 BitcoinExchange::~BitcoinExchange() {}
 
-/****************************** VALIDATES *******************************/
+/****************************** VALIDATIONS *******************************/
 
-					/* --- Spaces--- */
+                    /* --- Spaces --- */
 
 static std::string trim(const std::string& s) {
     size_t start = s.find_first_not_of(" \t\r\n");
@@ -27,21 +27,23 @@ static std::string trim(const std::string& s) {
     return s.substr(start, end - start + 1);
 }
 
-					/* --- Date of today --- */
+                    /* --- Today's date --- */
 
 static std::string getTodayDate() {
     time_t t = time(NULL);
     struct tm *now = localtime(&t);
-    char actualDaty[11];
-    std::snprintf(actualDaty, sizeof(actualDaty), "%04d-%02d-%02d", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday);
-    return std::string(actualDaty);
+    std::ostringstream oss;
+    oss << std::setw(4) << std::setfill('0') << (now->tm_year + 1900)
+        << '-' << std::setw(2) << std::setfill('0') << (now->tm_mon + 1)
+        << '-' << std::setw(2) << std::setfill('0') << now->tm_mday;
+    return oss.str();
 }
 
 static bool isDateAfter(const std::string& date, const std::string& today) {
     return date > today;
 }
 
-					/* --- Days in diferents years --- */
+                    /* --- Days in different years --- */
 
 static bool isLeapYear(int y) {
     return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
@@ -49,24 +51,24 @@ static bool isLeapYear(int y) {
 
 static int daysInMonth(int y, int m) {
     switch (m) {
-		case 1: return 31;
-		case 2: return isLeapYear(y) ? 29 : 28;
-		case 3: return 31;
-		case 4: return 30;
-		case 5: return 31;
-		case 6: return 30;
-		case 7: return 31;
-		case 8: return 31;
-		case 9: return 30;
-		case 10: return 31;
-		case 11: return 30;
-		case 12: return 31;
-		default: return 0;
-	}
+        case 1: return 31;
+        case 2: return isLeapYear(y) ? 29 : 28;
+        case 3: return 31;
+        case 4: return 30;
+        case 5: return 31;
+        case 6: return 30;
+        case 7: return 31;
+        case 8: return 31;
+        case 9: return 30;
+        case 10: return 31;
+        case 11: return 30;
+        case 12: return 31;
+        default: return 0;
+    }
 }
 
 static bool correctYear(int year, const std::string& date, Type context) {
-	if (year < 2009) {
+    if (year < 2009) {
         if (context == INPUT) {
             std::cerr << "Error: invalid date, can't be less than 2009." << std::endl;
             return false;
@@ -75,8 +77,8 @@ static bool correctYear(int year, const std::string& date, Type context) {
             std::cerr << "Error: invalid database date, can't be less than 2009." << std::endl;
             exit(1);
         }
-	}
-	if (isDateAfter(date, getTodayDate())) {
+    }
+    if (isDateAfter(date, getTodayDate())) {
         if (context == INPUT) {
             std::cerr << "Error: invalid date, can't be a day in the future." << std::endl;
             return false;
@@ -86,30 +88,30 @@ static bool correctYear(int year, const std::string& date, Type context) {
             exit(1);
         }
 
-	}
-	return true;
+    }
+    return true;
 }
 
-					/* --- Months --- */
+                    /* --- Months --- */
 
 static bool correctMonth(int month, Type context) {
-	if (month < 1 || month > 12) {
+    if (month < 1 || month > 12) {
         if (context == INPUT) {
             std::cerr << "Error: invalid date, the month must be between 1 and 12." << std::endl;
             return false;
         }
-		if (context == DATA) {
+        if (context == DATA) {
             std::cerr << "Error: invalid database date, the month must be between 1 and 12." << std::endl;
             exit(1);
         }
-	}
-	return true;
+    }
+    return true;
 }
 
-					/* --- Days --- */
+                    /* --- Days --- */
 
 static bool correctDay(int year, int month, int day, Type context) {
-	int maxDay = daysInMonth(year, month);
+    int maxDay = daysInMonth(year, month);
     if (day < 1 || day > maxDay) {
         if (context == INPUT) {
             std::cerr << "Error: invalid date, the day must be between 1 and " << maxDay << "." << std::endl;
@@ -120,22 +122,29 @@ static bool correctDay(int year, int month, int day, Type context) {
             exit(1);
         }
     }
-	return true;
+    return true;
 }
 
-					/* --- Validate date --- */
+                    /* --- Validate date --- */
 
 bool BitcoinExchange::validDate(const std::string& date, Type context) {
-	int year = std::atoi(date.substr(0,4).c_str());
+    if (date.size() < 10) {
+        if (context == INPUT)
+            std::cerr << "Error: invalid date format, must be YYYY-MM-DD" << std::endl;
+        else
+            std::cerr << "Error: invalid database date format, must be YYYY-MM-DD" << std::endl, exit(1);
+        return false;
+    }
+    int year = std::atoi(date.substr(0,4).c_str());
     int month = std::atoi(date.substr(5,2).c_str());
     int day = std::atoi(date.substr(8,2).c_str());
-	if (!correctYear(year, date, context) || !correctMonth(month, context) || !correctDay(year, month, day, context)){
-		return false;
+    if (!correctYear(year, date, context) || !correctMonth(month, context) || !correctDay(year, month, day, context)){
+        return false;
     }
     return true;
 }
 
-					/* --- Validate value --- */
+                    /* --- Validate value --- */
 
 bool BitcoinExchange::validValue(const std::string& value, Type context) {
     if (value.find('+') != std::string::npos) {
@@ -192,57 +201,81 @@ bool BitcoinExchange::validValue(const std::string& value, Type context) {
 
 /********************************  - DATA - ********************************/
 
-					/* --- Load data --- */
+                    /* --- Load database (data.csv) --- */
 
 void BitcoinExchange::loadDataBase(const std::string& dataBase) {
 
     std::ifstream file(dataBase.c_str());
-
     if (!file.is_open()) {
-        std::cerr << "Can't open database." << std::endl;
+        std::cerr << "Error: can't open database." << std::endl;
         exit(1);
     }
 
-	std::string line;
-	if (!std::getline(file, line))
-        std::cerr << "Can't read file database." << std::endl;
+    std::string line;
+    std::string firstNonBlank;
 
-	while (line.empty())
-		std::getline(file, line);
-	
+    // find the first non-empty line
     while (std::getline(file, line)) {
-		std::istringstream ss(line);
-		std::string date, value;
-		if (line.empty())
-			continue ;
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos)
+            continue;
+        firstNonBlank = line;
+        break;
+    }
 
-		if (checkCSVdata(date, value, ss)){
-			double dValue = std::atof(value.c_str());
-			_dataBase[date] = dValue;
-			//std::cout << date << " => " << dValue << std::endl;
-		}
+    if (firstNonBlank.empty()) {
+        std::cerr << "Error: database is empty." << std::endl;
+        exit(1);
+    }
+
+    // normalize: trim and remove all spaces, then lowercase (C++98 compatible)
+    std::string header = trim(firstNonBlank);
+    std::string no_spaces;
+    no_spaces.reserve(header.size());
+    for (size_t i = 0; i < header.size(); ++i) {
+        unsigned char c = static_cast<unsigned char>(header[i]);
+        if (!std::isspace(c))
+            no_spaces.push_back(static_cast<char>(c));
+    }
+    for (size_t i = 0; i < no_spaces.size(); ++i)
+        no_spaces[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(no_spaces[i])));
+
+    if (no_spaces != "date,exchange_rate") {
+        std::cerr << "Error: invalid database header, expected 'date,exchange_rate'." << std::endl;
+        exit(1);
+    }
+
+    // read the rest of the lines (data)
+    while (std::getline(file, line)) {
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos)
+            continue;
+        std::istringstream ss(line);
+        std::string date, value;
+        if (checkCSVdata(date, value, ss)) {
+            double dValue = std::atof(value.c_str());
+            _dataBase[date] = dValue;
+        }
     }
 }
 
-					/* --- Check data --- */
+                    /* --- Check CSV data --- */
 
 bool BitcoinExchange::checkCSVdata(std::string& date, std::string& value, std::istringstream& ss) {
     Type context = DATA;
 
-	if (!(std::getline(ss, date, ',') && std::getline(ss, value)) || date.length() != 10) {
+    if (!(std::getline(ss, date, ',') && std::getline(ss, value)) || date.length() != 10) {
         std::cerr << "Error: invalid database format, must be < YYYY-MM-DD,value >" << std::endl;
-		exit (1);
+        exit (1);
     }
-	else if (!validDate(date, context))
-		return false;
-	else if(!validValue(value, context))
-		return false;
-	return true;
+    else if (!validDate(date, context))
+        return false;
+    else if(!validValue(value, context))
+        return false;
+    return true;
 }
 
 /********************************  - INPUT - ********************************/
 
-					/* --- Load input data --- */
+                    /* --- Load input data --- */
 
 static bool hasTxtExtension(const std::string& filename) {
     size_t pos = filename.rfind('.');
@@ -260,45 +293,55 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
         exit(1);
     }
     if (!file.is_open()) {
-        std::cerr << "Error: can't open input data base." << std::endl;
+        std::cerr << "Error: can't open input file." << std::endl;
         exit(1);
     }
 
-    // leer primera línea (si no hay ninguna, el input está vacío -> error y exit)
     std::string line;
     int lineno = 0;
-    if (!std::getline(file, line)) {
-        std::cerr << "Error: input is empty." << std::endl;
-        exit(1);
-    }
-    ++lineno;
+    std::string firstNonBlank;
 
-    // detectar si la primera línea es cabecera "date" / "value"
-    std::string first = trim(line);
-    std::string lower = first;
-    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
-    bool isHeader = (lower.find("date") != std::string::npos && lower.find("value") != std::string::npos);
-
-    // almacenar la primera línea solo si no es cabecera
-    if (!isHeader && !first.empty())
-        _inputDataBase += first + "\n";
-
-    // almacenar el resto de líneas sin validar aquí
+    // find the first non-empty line (counting file lines)
     while (std::getline(file, line)) {
         ++lineno;
         if (line.find_first_not_of(" \t\r\n") == std::string::npos)
-            continue;
+            continue; // skip lines that only contain spaces/tabs
+        firstNonBlank = line;
+        break;
+    }
+
+    if (firstNonBlank.empty()) { // file empty or only spaces
+        std::cerr << "Error: input is empty." << std::endl;
+        exit(1);
+    }
+
+    // detect if the first non-empty line is header (date / value)
+    std::string firstTrim = trim(firstNonBlank);
+    std::string lower = firstTrim;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    bool isHeader = (lower.find("date") != std::string::npos && lower.find("value") != std::string::npos);
+
+    // if not header, warn and store it as the first data line
+    if (!isHeader) {
+        std::cerr << "Error: missing header, expected 'date | value'." << std::endl;
+        _inputDataBase += firstNonBlank + "\n";
+    }
+
+    // continue reading the rest of the file, skipping blank lines (spaces/tabs)
+    while (std::getline(file, line)) {
+        ++lineno;
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos)
+            continue; // ignore empty lines or lines with only spaces/tabs
         _inputDataBase += line + "\n";
     }
 
-    // si tras procesar no hay líneas (útiles), informar y salir
     if (_inputDataBase.empty()) {
         std::cerr << "Error: input is empty." << std::endl;
         exit(1);
     }
 }
 
-					/* --- Check input data --- */
+                    /* --- Check input data --- */
 
 bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std::istringstream& ss) {
     if (!std::getline(ss, date, '|') || !std::getline(ss, value)) {
@@ -322,7 +365,7 @@ bool BitcoinExchange::checkInputData(std::string& date, std::string& value, std:
     return true;
 }
 
-					/* --- Process input data --- */
+                    /* --- Process input data --- */
 
 void BitcoinExchange::processInput() {
     std::istringstream ss(_inputDataBase);
@@ -331,32 +374,29 @@ void BitcoinExchange::processInput() {
 
     while (std::getline(ss, line)) {
         ++lineno;
-        if (line.empty())
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos) 
             continue;
 
         std::istringstream lineSS(line);
         std::string inputDate, inputValue;
-
-        // validar la línea aquí: checkInputData devuelve bool y YA imprime el mensaje de error si falla
+        // restore original behavior: checkInputData prints the error and returns false
         if (!checkInputData(inputDate, inputValue, lineSS)) {
-            // sólo continuar (checkInputData ya muestra el mensaje)
             continue;
         }
-
         double dInputValue = std::atof(inputValue.c_str());
 
-        // Buscar la fecha exacta en _dataBase
+        // Find exact date in _dataBase
         std::map<std::string, double>::iterator dataIt = _dataBase.find(inputDate);
 
         if (dataIt != _dataBase.end()) {
             std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
         } else {
-            // Buscar la fecha más cercana anterior
+            // Find the closest previous date
             dataIt = _dataBase.lower_bound(inputDate);
             if (dataIt == _dataBase.begin()) {
-                std::cerr << "No data available for date " << inputDate << std::endl;
+                std::cerr << "Error: no data available for date " << inputDate << std::endl;
             } else {
-                --dataIt; // Retrocede a la fecha anterior
+                --dataIt; // move back to the previous date
                 std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
             }
         }
