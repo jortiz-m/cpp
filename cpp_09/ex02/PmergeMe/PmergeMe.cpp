@@ -156,10 +156,9 @@ void PmergeMe::fordJohnsonSort(Container& container) {
     
     // Step 2: Sort pairs by their larger elements recursively
     if (pairs.size() > 1) {
-        Container largerElements;
-        for (size_t i = 0; i < pairs.size(); ++i) {
+        Container largerElements; // Extract larger elements
+        for (size_t i = 0; i < pairs.size(); ++i)
             largerElements.push_back(pairs[i].first);
-        }
         fordJohnsonSort(largerElements);
         
         // Reorder pairs according to sorted larger elements
