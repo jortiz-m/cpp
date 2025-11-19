@@ -13,3 +13,12 @@ int main(int argc, char **argv) {
     calc.displayResult();
     return 0;
 }
+
+/*
+
+./RPN "-1 122222222222222222222222 1 + *"
+0
+
+
+
+*/

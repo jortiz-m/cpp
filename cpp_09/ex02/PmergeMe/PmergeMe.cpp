@@ -20,7 +20,7 @@ PmergeMe& PmergeMe::operator=(const PmergeMe& other) {
 
 PmergeMe::~PmergeMe() {}
 
-/************************************** PARSEO **************************************/
+/************************************** PARSE **************************************/
 
 bool PmergeMe::isValidNumber(const std::string& str) {
     if (str.empty())
@@ -45,7 +45,7 @@ bool PmergeMe::isValidNumber(const std::string& str) {
     
     if (numPart.length() > 10)
         return false;
-        
+    // stringstream    
     if (numPart.length() == 10) {
         if (numPart > "2147483647")
             throw std::out_of_range("int out of range.");
@@ -113,7 +113,7 @@ void PmergeMe::sortVector() {
     
     struct timeval start, end;
     gettimeofday(&start, NULL);
-    fordJohnsonSort(_vectorData);
+    fordJohnsonSortVector(_vectorData);
     gettimeofday(&end, NULL);
     
     _vectorTime = (end.tv_sec - start.tv_sec) * 1000000.0 + (end.tv_usec - start.tv_usec);
@@ -125,7 +125,7 @@ void PmergeMe::sortDeque() {
     
     struct timeval start, end;
     gettimeofday(&start, NULL);
-    fordJohnsonSort(_dequeData);
+    fordJohnsonSortDeque(_dequeData);
     gettimeofday(&end, NULL);
     
     _dequeTime = (end.tv_sec - start.tv_sec) * 1000000.0 + (end.tv_usec - start.tv_usec);
@@ -133,18 +133,16 @@ void PmergeMe::sortDeque() {
 
 /************************************** FORD-JHONSON **************************************/
 
-template<typename Container>
-void PmergeMe::fordJohnsonSort(Container& container) {
+/************************************** VECTOR **************************************/
 
+void PmergeMe::fordJohnsonSortVector(std::vector<int>& container) {
     if (container.size() <= 1)
         return;
     
-    // Step 1: Create pairs and sort them
     std::vector<std::pair<int, int> > pairs;
     bool hasOdd = container.size() % 2 == 1;
     int oddElement = hasOdd ? container.back() : 0;
     
-    // Create pairs (larger, smaller)
     for (size_t i = 0; i < container.size() - (hasOdd ? 1 : 0); i += 2) {
         int a = container[i];
         int b = container[i + 1];
@@ -154,15 +152,13 @@ void PmergeMe::fordJohnsonSort(Container& container) {
             pairs.push_back(std::make_pair(b, a));
     }
     
-    // Step 2: Sort pairs by their larger elements recursively
     if (pairs.size() > 1) {
-        Container largerElements;
+        std::vector<int> largerElements;
         for (size_t i = 0; i < pairs.size(); ++i) {
             largerElements.push_back(pairs[i].first);
         }
-        fordJohnsonSort(largerElements);
-        
-        // Reorder pairs according to sorted larger elements
+        fordJohnsonSortVector(largerElements);
+    
         std::vector<std::pair<int, int> > sortedPairs;
         for (size_t i = 0; i < largerElements.size(); ++i) {
             for (size_t j = 0; j < pairs.size(); ++j) {
@@ -175,45 +171,111 @@ void PmergeMe::fordJohnsonSort(Container& container) {
         pairs = sortedPairs;
     }
     
-    // Step 3: Create main chain and pending elements
-    Container mainChain;
+    std::vector<int> mainChain;
     std::vector<int> pend;
     
     if (!pairs.empty()) {
-        mainChain.push_back(pairs[0].second); // First smaller element
+        mainChain.push_back(pairs[0].second);
         for (size_t i = 0; i < pairs.size(); ++i) {
-            mainChain.push_back(pairs[i].first); // All larger elements
+            mainChain.push_back(pairs[i].first);
             if (i > 0) {
-                pend.push_back(pairs[i].second); // Pending smaller elements (except first)
+                pend.push_back(pairs[i].second);
             }
         }
     }
     
-    // Step 4: Generate Jacobsthal sequence and insert pending elements
     if (!pend.empty()) {
         std::vector<size_t> jacobsthalSeq = generateJacobsthalSequence(pend.size());
         
         for (size_t i = 0; i < jacobsthalSeq.size(); ++i) {
             if (jacobsthalSeq[i] < pend.size()) {
                 int element = pend[jacobsthalSeq[i]];
-                typename Container::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), element);
+                std::vector<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), element);
                 mainChain.insert(pos, element);
             }
         }
     }
-    
-    // Step 5: Insert odd element if exists
+
     if (hasOdd) {
-        typename Container::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), oddElement);
+        std::vector<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), oddElement);
         mainChain.insert(pos, oddElement);
     }
     
     container = mainChain;
 }
 
+/************************************** DEQUE **************************************/
+
+void PmergeMe::fordJohnsonSortDeque(std::deque<int>& container) {
+    if (container.size() <= 1)
+        return;
+    
+    std::vector<std::pair<int, int> > pairs;
+    bool hasOdd = container.size() % 2 == 1;
+    int oddElement = hasOdd ? container.back() : 0;
+    
+    for (size_t i = 0; i < container.size() - (hasOdd ? 1 : 0); i += 2) {
+        int a = container[i];
+        int b = container[i + 1];
+        if (a > b)
+            pairs.push_back(std::make_pair(a, b));
+        else
+            pairs.push_back(std::make_pair(b, a));
+    }
+    
+    if (pairs.size() > 1) {
+        std::deque<int> largerElements;
+        for (size_t i = 0; i < pairs.size(); ++i) {
+            largerElements.push_back(pairs[i].first);
+        }
+        fordJohnsonSortDeque(largerElements);
+        
+        std::vector<std::pair<int, int> > sortedPairs;
+        for (size_t i = 0; i < largerElements.size(); ++i) {
+            for (size_t j = 0; j < pairs.size(); ++j) {
+                if (pairs[j].first == largerElements[i]) {
+                    sortedPairs.push_back(pairs[j]);
+                    break;
+                }
+            }
+        }
+        pairs = sortedPairs;
+    }
+    
+    std::deque<int> mainChain;
+    std::vector<int> pend;
+    
+    if (!pairs.empty()) {
+        mainChain.push_back(pairs[0].second);
+        for (size_t i = 0; i < pairs.size(); ++i) {
+            mainChain.push_back(pairs[i].first);
+            if (i > 0) {
+                pend.push_back(pairs[i].second);
+            }
+        }
+    }
+    
+    if (!pend.empty()) {
+        std::vector<size_t> jacobsthalSeq = generateJacobsthalSequence(pend.size());
+        
+        for (size_t i = 0; i < jacobsthalSeq.size(); ++i) {
+            if (jacobsthalSeq[i] < pend.size()) {
+                int element = pend[jacobsthalSeq[i]];
+                std::deque<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), element);
+                mainChain.insert(pos, element);
+            }
+        }
+    }
+    
+    if (hasOdd) {
+        std::deque<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), oddElement);
+        mainChain.insert(pos, oddElement);
+    }
+    
+    container = mainChain;
+}
 
 /************************************** JACOBSTHAL **************************************/
-
 
 std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
     std::vector<size_t> jacobsthal;
@@ -229,14 +291,12 @@ std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
         j1 = next;
     }
     
-    // Create insertion sequence based on Jacobsthal numbers
     std::vector<bool> used(n, false);
     
     for (size_t i = 1; i < jacobsthal.size(); ++i) {
         size_t limit = std::min(jacobsthal[i], n);
         size_t start = jacobsthal[i - 1];
         
-        // Insert in reverse order from jacobsthal[i] down to jacobsthal[i-1] + 1
         for (size_t j = limit; j > start; --j) {
             if (j - 1 < n && !used[j - 1]) {
                 sequence.push_back(j - 1);
@@ -244,8 +304,6 @@ std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
             }
         }
     }
-    
-    // Add any remaining elements
     for (size_t i = 0; i < n; ++i) {
         if (!used[i]) {
             sequence.push_back(i);
@@ -254,4 +312,3 @@ std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
     
     return sequence;
 }
-

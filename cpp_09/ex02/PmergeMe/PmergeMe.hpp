@@ -16,9 +16,9 @@ class PmergeMe {
         std::deque<int>         _dequeData;
         double                  _vectorTime;
         double                  _dequeTime;
-        
-        template<typename Container>
-        void                    fordJohnsonSort(Container& container);
+
+        void                    fordJohnsonSortVector(std::vector<int>& _vectorData);
+        void                    fordJohnsonSortDeque(std::deque<int>& _vectorData);
         
         std::vector<size_t>     generateJacobsthalSequence(size_t n);
     

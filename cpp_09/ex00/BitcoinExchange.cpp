@@ -214,7 +214,6 @@ void BitcoinExchange::loadDataBase(const std::string& dataBase) {
     std::string line;
     std::string firstNonBlank;
 
-    // find the first non-empty line
     while (std::getline(file, line)) {
         if (line.find_first_not_of(" \t\r\n") == std::string::npos)
             continue;
@@ -227,7 +226,6 @@ void BitcoinExchange::loadDataBase(const std::string& dataBase) {
         exit(1);
     }
 
-    // normalize: trim and remove all spaces, then lowercase (C++98 compatible)
     std::string header = trim(firstNonBlank);
     std::string no_spaces;
     no_spaces.reserve(header.size());
@@ -244,7 +242,6 @@ void BitcoinExchange::loadDataBase(const std::string& dataBase) {
         exit(1);
     }
 
-    // read the rest of the lines (data)
     while (std::getline(file, line)) {
         if (line.find_first_not_of(" \t\r\n") == std::string::npos)
             continue;
@@ -281,7 +278,7 @@ static bool hasTxtExtension(const std::string& filename) {
     size_t pos = filename.rfind('.');
     if (pos == std::string::npos)
         return false;
-    return filename.substr(pos) == ".txt";
+    return filename.substr(pos) == ".txt" || filename.substr(pos) == ".csv";
 }
 
 void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
@@ -289,7 +286,7 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
     std::ifstream file(inputDataBase.c_str());
 
     if (!hasTxtExtension(inputDataBase)) {
-        std::cerr << "Error: file extension must be .txt" << std::endl;
+        std::cerr << "Error: file extension must be .txt or .csv" << std::endl;
         exit(1);
     }
     if (!file.is_open()) {
@@ -301,37 +298,33 @@ void BitcoinExchange::loadInputDataBase(const std::string& inputDataBase) {
     int lineno = 0;
     std::string firstNonBlank;
 
-    // find the first non-empty line (counting file lines)
     while (std::getline(file, line)) {
         ++lineno;
         if (line.find_first_not_of(" \t\r\n") == std::string::npos)
-            continue; // skip lines that only contain spaces/tabs
+            continue;
         firstNonBlank = line;
         break;
     }
 
-    if (firstNonBlank.empty()) { // file empty or only spaces
+    if (firstNonBlank.empty()) {
         std::cerr << "Error: input is empty." << std::endl;
         exit(1);
     }
 
-    // detect if the first non-empty line is header (date / value)
     std::string firstTrim = trim(firstNonBlank);
     std::string lower = firstTrim;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
     bool isHeader = (lower.find("date") != std::string::npos && lower.find("value") != std::string::npos);
 
-    // if not header, warn and store it as the first data line
     if (!isHeader) {
         std::cerr << "Error: missing header, expected 'date | value'." << std::endl;
         _inputDataBase += firstNonBlank + "\n";
     }
 
-    // continue reading the rest of the file, skipping blank lines (spaces/tabs)
     while (std::getline(file, line)) {
         ++lineno;
         if (line.find_first_not_of(" \t\r\n") == std::string::npos)
-            continue; // ignore empty lines or lines with only spaces/tabs
+            continue;
         _inputDataBase += line + "\n";
     }
 
@@ -379,24 +372,22 @@ void BitcoinExchange::processInput() {
 
         std::istringstream lineSS(line);
         std::string inputDate, inputValue;
-        // restore original behavior: checkInputData prints the error and returns false
+
         if (!checkInputData(inputDate, inputValue, lineSS)) {
             continue;
         }
         double dInputValue = std::atof(inputValue.c_str());
 
-        // Find exact date in _dataBase
         std::map<std::string, double>::iterator dataIt = _dataBase.find(inputDate);
 
         if (dataIt != _dataBase.end()) {
             std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
         } else {
-            // Find the closest previous date
             dataIt = _dataBase.lower_bound(inputDate);
             if (dataIt == _dataBase.begin()) {
                 std::cerr << "Error: no data available for date " << inputDate << std::endl;
             } else {
-                --dataIt; // move back to the previous date
+                --dataIt;
                 std::cout << inputDate << " => " << dInputValue << " = " << dataIt->second * dInputValue << std::endl;
             }
         }

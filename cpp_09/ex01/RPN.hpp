@@ -19,7 +19,6 @@ class RPN {
         RPN& operator=(const RPN& other);
         ~RPN();
 
-        void	displayStack() const;
         void	displayResult() const;
 
         bool    isNumeric(const std::string& ar);

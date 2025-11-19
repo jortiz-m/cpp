@@ -16,16 +16,6 @@ RPN::~RPN(void) {}
 
 /********************* Display **************************/
 
-/* Debug helper: print the stack contents */
-void	RPN::displayStack(void) const {
-    std::stack<int> copy = _numsPile;
-    for (size_t i = 0; !copy.empty(); ++i) {
-        std::cout << "[" << i << "] " << copy.top() << std::endl;
-        copy.pop();
-    }
-}
-
-/* Print final result (or error if stack malformed) */
 void	RPN::displayResult(void) const {
     if (_numsPile.empty()) {
         std::cerr << "Error: no result to print" << std::endl;
@@ -38,9 +28,8 @@ void	RPN::displayResult(void) const {
     std::cout << _numsPile.top() << std::endl;
 }
 
-/********************* Evaluation **************************/
+/********************* Parse **************************/
 
-/* Return true if the token is a valid integer number (optional leading '-') */
 bool RPN::isNumeric(const std::string& ar) {
     if (ar.empty())
         return false;
@@ -55,23 +44,27 @@ bool RPN::isNumeric(const std::string& ar) {
     return true;
 }
 
-/* Return true if the token is one of the supported operators */
 bool RPN::isOperator(const std::string& ar) {
     return ((ar.size() == 1) &&
         (ar[0] == '+' || ar[0] == '-' || ar[0] == '*' || ar[0] == '/'));
 }
 
-/* Validate token: numbers must be <=9 absolute value, operators allowed.
-   On invalid input print single Error message and exit. */
 bool RPN::tokenIsValid(const std::string& ar) {
     if (isOperator(ar))
         return true;
 
     if (isNumeric(ar)) {
-        std::istringstream iss(ar);
-        long num = 0;
-        iss >> num;
-        if (num > 9 || num < -9) {
+        std::stringstream ss(ar);
+
+        int num;
+
+        ss >> num;
+        if (ss.fail()){
+            std::cerr << "Error: number out of range." << std::endl;
+            exit(1);
+        }
+
+        if (num > 9 || num < INT_MIN) {
             std::cerr << "Error: number can´t be greater than 9 or less than -9." << std::endl;
             exit(1);
         }
@@ -82,33 +75,29 @@ bool RPN::tokenIsValid(const std::string& ar) {
     exit(1);
 }
 
-/* Process the input expression (argv style string).
-   The function follows the original signature but uses const correctness. */
-void	RPN::evaluateExpression(char *av, RPN& polishCalc) {
+void	RPN::evaluateExpression(char *av, RPN& polishCalculator) {
     std::istringstream iss(av);
     std::string	ar;
 
     while (iss >> ar && tokenIsValid(ar)) {
         if (isNumeric(ar)) {
-            polishCalc.pushNumber(ar);
+            polishCalculator.pushNumber(ar);
             continue;
         }
-        polishCalc.executeOperation(ar);
+        polishCalculator.executeOperation(ar);
     }
 }
 
 /* ************************ Operations ************************** */
 
-/* push a number (string) onto the internal stack */
 void	RPN::pushNumber(const std::string& ar) {
     int n = std::atoi(ar.c_str());
     _numsPile.push(n);
 }
 
-/* Perform an arithmetic operation using the two topmost numbers */
 void	RPN::executeOperation(const std::string& ar) {
     if (_numsPile.size() < 2) {
-        std::cerr << "Error: not enough operands in stack" << std::endl;
+        std::cerr << "Error: extra operands in stack" << std::endl;
         exit(1);
     }
 
